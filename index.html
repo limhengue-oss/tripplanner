@@ -339,6 +339,7 @@ input[type="file"] { display: none; }
 }
 #splash .s-logo { font-size: 52px; animation: float 1.5s ease-in-out infinite; }
 #splash .s-title { font-size: 26px; font-weight: 700; }
+#splash .s-tagline { font-size: 13px; color: var(--text3); font-weight: 300; letter-spacing: 1.5px; margin-top: 2px; font-style: italic; }
 #splash .spinner { width: 36px; height: 36px; border: 3px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -408,6 +409,7 @@ input[type="file"] { display: none; }
 <div id="splash">
   <div class="s-logo">✈️</div>
   <div class="s-title">Mily</div>
+  <div class="s-tagline">every miles, with Mily</div>
   <div class="spinner"></div>
 </div>
 
@@ -924,7 +926,7 @@ function esc(s) {
 // ─────────────────────────────────────────────
 // Constants
 // ─────────────────────────────────────────────
-const ADMIN_EMAIL = 'limhengue@gmail.com'; // ← เปลี่ยนเป็น Google email ของ Admin (ลิ้ม)
+const ADMIN_EMAIL = 'YOUR_ADMIN_EMAIL@gmail.com'; // ← เปลี่ยนเป็น Google email ของ Admin (ลิ้ม)
 const ADMIN_PIN = '7878'; // Admin PIN login (ทางเลือกเสริมจาก Google)
 
 // ⚠️ DEV/LOCAL TESTING ONLY — ตั้ง true ให้ทุกคนเห็นสิทธิ์เท่า Admin
@@ -984,9 +986,16 @@ let editingTripId = null;
 // without exposing data to raw API requests.
 async function ensureAnonymousAuth() {
   if (!FIREBASE_OK || !auth) return;
-  if (!auth.currentUser) {
-    try { await auth.signInAnonymously(); }
-    catch (e) { console.warn('Anonymous auth failed:', e.message); }
+  if (auth.currentUser) return; // already signed in
+  try {
+    // Timeout after 5s so boot doesn't hang if Auth is slow
+    await Promise.race([
+      auth.signInAnonymously(),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('auth timeout')), 5000))
+    ]);
+  } catch(e) {
+    console.warn('Anonymous auth skipped:', e.message);
+    // Non-fatal — app still works, Firebase Rules may block writes
   }
 }
 
@@ -1020,8 +1029,18 @@ async function signInWithGoogle() {
     localStorage.setItem('ts_session', JSON.stringify(currentUser));
     startMain();
   } catch (e) {
-    console.warn('Google sign-in failed:', e.message);
-    showToast(currentLang==='en' ? 'Google sign-in failed' : 'เข้าสู่ระบบด้วย Google ไม่สำเร็จ', 'error');
+    console.warn('Google sign-in failed:', e.code, e.message);
+    let msg = currentLang==='en' ? 'Google sign-in failed' : 'เข้าสู่ระบบด้วย Google ไม่สำเร็จ';
+    if (e.code === 'auth/unauthorized-domain') {
+      msg = currentLang==='en'
+        ? 'This domain is not authorized. Add it in Firebase Console → Authentication → Settings → Authorized domains'
+        : 'Domain นี้ยังไม่ได้รับอนุญาต — เพิ่มใน Firebase Console → Authentication → Authorized domains';
+    } else if (e.code === 'auth/popup-blocked') {
+      msg = currentLang==='en' ? 'Popup blocked — allow popups for this site' : 'Popup ถูกบล็อก — อนุญาต popup สำหรับเว็บนี้';
+    } else if (e.code === 'auth/operation-not-allowed') {
+      msg = currentLang==='en' ? 'Google sign-in not enabled in Firebase Console' : 'ยังไม่ได้เปิด Google login ใน Firebase Console';
+    }
+    showToast(msg, 'error');
   }
 }
 
@@ -1029,17 +1048,27 @@ async function signInWithGoogle() {
 function loadLoginUserList() {
   const sel = $('login-user');
   sel.innerHTML = '';
-  // Admin option first (PIN login)
+  // Admin option always first (PIN login)
   const adminOpt = document.createElement('option');
   adminOpt.value = '__admin__';
   adminOpt.textContent = adminDisplayName();
   sel.appendChild(adminOpt);
-  Object.values(allUsers).forEach(u => {
-    const opt = document.createElement('option');
-    opt.value = u.id;
-    opt.textContent = u.name;
-    sel.appendChild(opt);
-  });
+  const users = Object.values(allUsers);
+  if (users.length === 0) {
+    // Firebase not ready yet — show placeholder
+    const ph = document.createElement('option');
+    ph.value = '';
+    ph.disabled = true;
+    ph.textContent = currentLang === 'en' ? '— loading members... —' : '— กำลังโหลด... —';
+    sel.appendChild(ph);
+  } else {
+    users.forEach(u => {
+      const opt = document.createElement('option');
+      opt.value = u.id;
+      opt.textContent = u.name;
+      sel.appendChild(opt);
+    });
+  }
 }
 
 function doLogin() {
@@ -3272,11 +3301,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load users from Firebase (needed to validate PIN sessions + populate login)
   try {
-    const snap = await db.ref('users').once('value');
+    const snap = await Promise.race([
+      db.ref('users').once('value'),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('users load timeout')), 8000))
+    ]);
     allUsers = snap.val() || {};
     loadLoginUserList();
   } catch(e) {
-    console.warn('Firebase load error:', e);
+    console.warn('Firebase users load error:', e.message);
+    // Show login anyway — user can still try Google login or wait
+    loadLoginUserList();
   }
 
   // Restore + verify session
