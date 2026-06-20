@@ -1742,23 +1742,32 @@ async function saveExpense() {
   };
 
   const path = `expenses/${currentTrip.id}`;
-  if (editingExpenseId) {
-    await db.ref(`${path}/${editingExpenseId}`).update(data);
-    showToast(t('toast_updated'));
-  } else {
-    data.createdAt = Date.now();
-    await db.ref(path).push(data);
-    showToast(t('toast_saved'));
+  try {
+    if (editingExpenseId) {
+      await db.ref(`${path}/${editingExpenseId}`).update(data);
+      showToast(t('toast_updated'));
+    } else {
+      data.createdAt = Date.now();
+      await db.ref(path).push(data);
+      showToast(t('toast_saved'));
+    }
+    closeExpenseSheet();
+  } catch(e) {
+    console.error('saveExpense failed:', e);
+    showToast(currentLang==='en' ? 'Save failed: '+e.message : 'บันทึกไม่สำเร็จ: '+e.message, 'error');
   }
-  closeExpenseSheet();
 }
 
 async function deleteExpense() {
   if (!editingExpenseId) return;
   if (!confirm(t('confirm_delete_exp'))) return;
-  await db.ref(`expenses/${currentTrip.id}/${editingExpenseId}`).remove();
-  showToast(t('toast_deleted'));
-  closeExpenseSheet();
+  try {
+    await db.ref(`expenses/${currentTrip.id}/${editingExpenseId}`).remove();
+    showToast(t('toast_deleted'));
+    closeExpenseSheet();
+  } catch(e) {
+    showToast(currentLang==='en' ? 'Delete failed: '+e.message : 'ลบไม่สำเร็จ: '+e.message, 'error');
+  }
 }
 
 function closeSheet(name) {
@@ -2516,7 +2525,12 @@ function toggleNotesSection(headerEl) {
 
 async function saveNote(secId, value) {
   if (!currentTrip) return;
-  await db.ref(`notes/${currentTrip.id}/${secId}`).set(value);
+  try {
+    await db.ref(`notes/${currentTrip.id}/${secId}`).set(value);
+  } catch(e) {
+    console.error('saveNote failed:', e);
+    showToast(currentLang==='en' ? 'Save failed — check permissions' : 'บันทึกไม่สำเร็จ — ตรวจสอบสิทธิ์', 'error');
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -2612,9 +2626,14 @@ async function saveUserTrips(uid) {
   if (!form) return;
   const trips = Array.from(form.querySelectorAll('input[type="checkbox"]:checked')).map(c => c.value);
   const email = ($(`edit-user-email-${uid}`)?.value || '').trim().toLowerCase();
-  await db.ref(`users/${uid}`).update({ trips, email: email || null });
-  showToast(t('toast_user_trips_updated'));
-  form.remove();
+  try {
+    await db.ref(`users/${uid}`).update({ trips, email: email || null });
+    showToast(t('toast_user_trips_updated'));
+    form.remove();
+  } catch(e) {
+    console.error('saveUserTrips failed:', e);
+    showToast(currentLang==='en' ? 'Save failed: '+e.message : 'บันทึกไม่สำเร็จ: '+e.message, 'error');
+  }
 }
 
 function openAddUserForm() {
@@ -2651,15 +2670,24 @@ async function saveNewUser() {
   const color = document.querySelector('.av-color.selected')?.style.background || '#4f8ef7';
   const trips = Array.from($$('#new-user-trips input:checked')).map(c => c.value);
   const id = 'user_' + Date.now();
-  await db.ref(`users/${id}`).set({ id, name, pin, color, trips, email: email || null });
-  showToast(t('toast_user_saved')+' '+name+' ✓');
-  $('add-user-form').style.display = 'none';
+  try {
+    await db.ref(`users/${id}`).set({ id, name, pin, color, trips, email: email || null });
+    showToast(t('toast_user_saved')+' '+name+' ✓');
+    $('add-user-form').style.display = 'none';
+  } catch(e) {
+    console.error('saveNewUser failed:', e);
+    showToast(currentLang==='en' ? 'Save failed: '+e.message : 'บันทึกไม่สำเร็จ: '+e.message, 'error');
+  }
 }
 
 async function deleteUser(uid) {
   if (!confirm(t('confirm_delete_user'))) return;
-  await db.ref(`users/${uid}`).remove();
-  showToast(t('toast_deleted'));
+  try {
+    await db.ref(`users/${uid}`).remove();
+    showToast(t('toast_deleted'));
+  } catch(e) {
+    showToast(currentLang==='en' ? 'Delete failed: '+e.message : 'ลบไม่สำเร็จ: '+e.message, 'error');
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -2783,38 +2811,44 @@ async function saveTripForm() {
   };
 
   let tripId = editingTripId;
-  if (editingTripId) {
-    await db.ref(`trips/${editingTripId}`).update(data);
-    showToast(t('toast_trip_updated'));
-  } else {
-    data.createdAt = Date.now();
-    const ref = await db.ref('trips').push(data);
-    tripId = ref.key;
-    showToast(t('toast_trip_saved'));
-  }
-
-  // Sync users/{uid}/trips for ALL non-admin members (both create and edit)
-  for (const [uid, user] of Object.entries(allUsers)) {
-    const shouldHave = members.includes(uid);
-    const currentTrips = user.trips || [];
-    const hasTrip = currentTrips.includes(tripId);
-    if (shouldHave && !hasTrip) {
-      await db.ref(`users/${uid}/trips`).set([...currentTrips, tripId]);
-    } else if (!shouldHave && hasTrip) {
-      await db.ref(`users/${uid}/trips`).set(currentTrips.filter(t => t !== tripId));
+  try {
+    if (editingTripId) {
+      await db.ref(`trips/${editingTripId}`).update(data);
+      showToast(t('toast_trip_updated'));
+    } else {
+      data.createdAt = Date.now();
+      const ref = await db.ref('trips').push(data);
+      tripId = ref.key;
+      showToast(t('toast_trip_saved'));
     }
+    // Sync users/{uid}/trips
+    for (const [uid, user] of Object.entries(allUsers)) {
+      const shouldHave = members.includes(uid);
+      const curTrips = user.trips || [];
+      if (shouldHave && !curTrips.includes(tripId))
+        await db.ref(`users/${uid}/trips`).set([...curTrips, tripId]);
+      else if (!shouldHave && curTrips.includes(tripId))
+        await db.ref(`users/${uid}/trips`).set(curTrips.filter(t => t !== tripId));
+    }
+    $('modal-trip-form').classList.remove('show');
+  } catch(e) {
+    console.error('saveTripForm failed:', e);
+    showToast(currentLang==='en' ? 'Save failed: '+e.message : 'บันทึกไม่สำเร็จ: '+e.message, 'error');
   }
-
-  $('modal-trip-form').classList.remove('show');
 }
 
 async function deleteTrip(tid) {
   if (!confirm(t('confirm_delete_trip'))) return;
-  await db.ref(`trips/${tid}`).remove();
-  await db.ref(`expenses/${tid}`).remove();
-  await db.ref(`notes/${tid}`).remove();
-  if (currentTrip?.id === tid) setCurrentTrip(null);
-  showToast(t('toast_trip_deleted'));
+  try {
+    await db.ref(`trips/${tid}`).remove();
+    await db.ref(`expenses/${tid}`).remove();
+    await db.ref(`notes/${tid}`).remove();
+    if (currentTrip?.id === tid) setCurrentTrip(null);
+    showToast(t('toast_trip_deleted'));
+  } catch(e) {
+    console.error('deleteTrip failed:', e);
+    showToast(currentLang==='en' ? 'Delete failed: '+e.message : 'ลบไม่สำเร็จ: '+e.message, 'error');
+  }
 }
 
 function genCode() {
