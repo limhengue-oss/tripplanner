@@ -1,0 +1,3389 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Mily v1.5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Firebase loaded before main script in body -->
+
+<style>
+:root {
+  --bg: #0a0e1a;
+  --bg2: #111827;
+  --bg3: #1a2332;
+  --card: #161e2e;
+  --card2: #1e2a3e;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #e8edf5;
+  --text2: #9aa5bc;
+  --text3: #5c6a82;
+  --accent: #4f8ef7;
+  --accent2: #6366f1;
+  --green: #10b981;
+  --red: #f43f5e;
+  --yellow: #f59e0b;
+  --orange: #fb923c;
+  --purple: #a855f7;
+  --cyan: #06b6d4;
+  --pink: #ec4899;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --font: 'Prompt', 'Sarabun', sans-serif;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ─── Light Theme ─── */
+[data-theme="light"] {
+  --bg: #f0f4f8;
+  --bg2: #ffffff;
+  --bg3: #e2e8f0;
+  --card: #ffffff;
+  --card2: #f8fafc;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.14);
+  --text: #1a202c;
+  --text2: #4a5568;
+  --text3: #a0aec0;
+  --accent: #3b82f6;
+  --accent2: #6366f1;
+  --green: #059669;
+  --red: #e11d48;
+  --yellow: #d97706;
+  --orange: #ea580c;
+  --purple: #9333ea;
+  --cyan: #0891b2;
+  --pink: #db2777;
+  --shadow: 0 4px 20px rgba(0,0,0,0.10);
+}
+[data-theme="light"] body { background: var(--bg); }
+[data-theme="light"] .login-logo { filter: none; }
+[data-theme="light"] .form-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%234a5568' viewBox='0 0 16 16'%3E%3Cpath d='M8 10.94L2.47 5.41l.94-.94L8 9.06l4.59-4.59.94.94z'/%3E%3C/svg%3E");
+}
+[data-theme="light"] #splash { background: var(--bg); }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; overflow: hidden; }
+input, select, textarea, button { font-family: var(--font); }
+
+/* ─── Layout ─── */
+#app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+#screen-login { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+#screen-main { position: absolute; inset: 0; display: flex; flex-direction: column; }
+
+/* ─── Login Screen ─── */
+#screen-login {
+  background: radial-gradient(ellipse at 50% 0%, rgba(79,142,247,0.15) 0%, transparent 70%), var(--bg);
+  padding: 24px;
+}
+.login-logo { font-size: 48px; margin-bottom: 8px; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.login-title { font-size: 32px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
+.login-sub { color: var(--text2); font-size: 13px; margin-bottom: 32px; font-weight: 300; }
+.login-card {
+  background: var(--card); border: 1px solid var(--border2); border-radius: var(--radius);
+  padding: 28px; width: 100%; max-width: 380px; box-shadow: var(--shadow);
+}
+.form-group { margin-bottom: 16px; }
+.form-label { font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 6px; display: block; letter-spacing: 0.5px; text-transform: uppercase; }
+.form-input, .form-select {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--radius-sm);
+  padding: 12px 14px; color: var(--text); font-size: 15px; outline: none; transition: border-color 0.2s;
+  appearance: none; -webkit-appearance: none;
+}
+.form-input:focus, .form-select:focus { border-color: var(--accent); }
+.form-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%239aa5bc' viewBox='0 0 16 16'%3E%3Cpath d='M8 10.94L2.47 5.41l.94-.94L8 9.06l4.59-4.59.94.94z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+.pin-input { letter-spacing: 8px; font-size: 20px; font-weight: 600; text-align: center; }
+.btn-primary {
+  width: 100%; padding: 14px; background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none; border-radius: var(--radius-sm); color: white; font-size: 16px; font-weight: 600;
+  cursor: pointer; transition: opacity 0.2s, transform 0.1s;
+}
+.btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+.login-error { color: var(--red); font-size: 13px; text-align: center; margin-top: 10px; display: none; }
+
+/* ─── Top Bar ─── */
+#topbar {
+  display: flex; align-items: center; padding: 12px 16px; background: var(--card);
+  border-bottom: 1px solid var(--border); gap: 8px; flex-shrink: 0;
+  padding-top: calc(12px + env(safe-area-inset-top, 0px));
+}
+.topbar-title { flex: 1; font-size: 17px; font-weight: 600; }
+.topbar-title span { font-size: 12px; color: var(--text3); display: block; font-weight: 400; }
+.icon-btn { width: 36px; height: 36px; border-radius: 10px; border: none; background: var(--bg3); color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.icon-btn:active { opacity: 0.7; }
+.trip-selector-btn { display: flex; align-items: center; gap: 6px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 10px; padding: 6px 12px; cursor: pointer; flex: 1; max-width: 160px; font-size: 13px; font-weight: 500; color: var(--text); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+/* ─── Content Area ─── */
+#content { flex: 1; overflow-y: auto; overflow-x: hidden; background: var(--bg); }
+#content::-webkit-scrollbar { width: 0; }
+
+/* ─── Bottom Nav ─── */
+#bottomnav {
+  display: flex; background: var(--card); border-top: 1px solid var(--border);
+  padding-bottom: calc(8px + var(--safe-bottom)); flex-shrink: 0;
+}
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px 4px 6px; cursor: pointer; gap: 3px; transition: color 0.2s; color: var(--text3); }
+.nav-item.active { color: var(--accent); }
+.nav-icon { font-size: 22px; }
+.nav-label { font-size: 10px; font-weight: 500; }
+
+/* ─── FAB ─── */
+#fab {
+  position: fixed; right: 20px; bottom: calc(72px + var(--safe-bottom) + 12px);
+  width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none; color: white; font-size: 28px; cursor: pointer; box-shadow: 0 4px 20px rgba(79,142,247,0.4);
+  display: flex; align-items: center; justify-content: center; z-index: 100;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+#fab:active { transform: scale(0.92); }
+
+/* ─── Tab Content ─── */
+.tab-pane { display: none; padding: 16px; padding-bottom: 100px; }
+.tab-pane.active { display: block; }
+
+/* ─── Section Header ─── */
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.section-title { font-size: 16px; font-weight: 600; color: var(--text); }
+.section-sub { font-size: 12px; color: var(--text3); }
+
+/* ─── Expense Cards ─── */
+.day-group { margin-bottom: 20px; }
+.day-label { font-size: 12px; font-weight: 600; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.day-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.expense-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px;
+  cursor: pointer; transition: background 0.15s;
+}
+.expense-card:active { background: var(--card2); }
+.expense-cat-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.expense-info { flex: 1; min-width: 0; }
+.expense-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.expense-meta { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.expense-amount { text-align: right; flex-shrink: 0; }
+.expense-amount .amt { font-size: 16px; font-weight: 700; }
+.expense-amount .currency { font-size: 11px; color: var(--text3); }
+.expense-thumb { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
+
+/* ─── Category Chips ─── */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.chip { padding: 5px 12px; border-radius: 20px; font-size: 13px; cursor: pointer; border: 1px solid var(--border2); background: var(--bg3); color: var(--text2); transition: all 0.15s; white-space: nowrap; }
+.chip.active { background: var(--accent); border-color: var(--accent); color: white; }
+.chip-filter.all.active { background: var(--purple); border-color: var(--purple); }
+
+/* ─── Summary Tab ─── */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; }
+.stat-label { font-size: 11px; color: var(--text3); font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; }
+.stat-value { font-size: 22px; font-weight: 700; }
+.stat-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.progress-bar-wrap { background: var(--bg3); border-radius: 4px; height: 8px; overflow: hidden; margin-top: 6px; }
+.progress-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+.balance-list { display: flex; flex-direction: column; gap: 8px; }
+.balance-item { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; }
+.balance-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; flex-shrink: 0; }
+.balance-name { flex: 1; font-size: 14px; font-weight: 500; }
+.balance-amount { font-size: 15px; font-weight: 700; }
+.balance-amount.positive { color: var(--green); }
+.balance-amount.negative { color: var(--red); }
+.settlement-item { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; color: var(--text2); display: flex; align-items: center; gap: 6px; }
+
+/* ─── Pie Chart ─── */
+.pie-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+#pie-canvas { max-width: 220px; max-height: 220px; }
+.pie-legend { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.legend-label { flex: 1; }
+.legend-pct { font-weight: 600; }
+
+/* ─── Calendar Tab ─── */
+.cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.cal-month { font-size: 18px; font-weight: 700; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-dow { text-align: center; font-size: 11px; color: var(--text3); padding: 4px 0; font-weight: 500; }
+.cal-cell { aspect-ratio: 1; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; font-size: 13px; transition: opacity 0.15s; }
+.cal-cell.empty { cursor: default; }
+.cal-cell.today { font-weight: 700; }
+.cal-cell.today::after { content: ''; position: absolute; bottom: 3px; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+.cal-cell:active:not(.empty) { opacity: 0.7; }
+.cal-cell .heat { position: absolute; inset: 2px; border-radius: 6px; opacity: 0.85; }
+.cal-cell .day-num { position: relative; z-index: 1; }
+.cal-events { margin-top: 16px; }
+.cal-events-title { font-size: 14px; font-weight: 600; color: var(--text2); margin-bottom: 10px; }
+
+/* ─── Notes Tab ─── */
+.notes-section { margin-bottom: 16px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.notes-section-header { display: flex; align-items: center; gap: 8px; padding: 14px 16px; cursor: pointer; }
+.notes-section-icon { font-size: 20px; }
+.notes-section-title { flex: 1; font-size: 15px; font-weight: 600; }
+.notes-toggle { color: var(--text3); transition: transform 0.2s; }
+.notes-section.open .notes-toggle { transform: rotate(180deg); }
+.notes-body { padding: 0 16px 16px; display: none; }
+.notes-section.open .notes-body { display: block; }
+.notes-textarea { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px; color: var(--text); font-size: 14px; line-height: 1.6; resize: none; outline: none; min-height: 80px; }
+.notes-textarea:focus { border-color: var(--accent); }
+.notes-read { font-size: 14px; color: var(--text2); line-height: 1.7; white-space: pre-wrap; min-height: 40px; }
+
+/* ─── Modal / Sheet ─── */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: none; animation: fadeIn 0.2s; }
+.overlay.show { display: block; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.sheet {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 201;
+  background: var(--bg2); border-top-left-radius: 24px; border-top-right-radius: 24px;
+  max-height: 92vh; overflow-y: auto; display: none;
+  animation: slideUp 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  padding-bottom: calc(20px + var(--safe-bottom));
+}
+.sheet::-webkit-scrollbar { width: 0; }
+.sheet.show { display: block; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.sheet-handle { width: 36px; height: 4px; background: var(--border2); border-radius: 2px; margin: 12px auto 4px; }
+.sheet-header { display: flex; align-items: center; padding: 8px 20px 16px; gap: 12px; }
+.sheet-title { flex: 1; font-size: 19px; font-weight: 700; }
+.sheet-close { background: var(--bg3); border: none; color: var(--text2); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+.sheet-body { padding: 0 20px; }
+.sheet-footer { padding: 16px 20px 0; display: flex; gap: 10px; }
+.sheet-footer .btn-primary { flex: 1; }
+.btn-outline { flex: 1; padding: 14px; background: transparent; border: 1px solid var(--border2); border-radius: var(--radius-sm); color: var(--text); font-size: 16px; font-weight: 500; cursor: pointer; }
+
+/* ─── Full Modal (admin) ─── */
+.modal {
+  position: fixed; inset: 0; z-index: 300; background: var(--bg2); overflow-y: auto;
+  display: none; padding-bottom: calc(20px + var(--safe-bottom));
+}
+.modal.show { display: block; }
+.modal-header { display: flex; align-items: center; padding: 16px; border-bottom: 1px solid var(--border); gap: 10px; padding-top: calc(16px + env(safe-area-inset-top, 0px)); }
+.modal-back { background: none; border: none; color: var(--text); font-size: 22px; cursor: pointer; }
+.modal-title { flex: 1; font-size: 18px; font-weight: 700; }
+.modal-body { padding: 16px; }
+
+/* ─── Toast ─── */
+#toast-container { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 60px); left: 50%; transform: translateX(-50%); z-index: 500; display: flex; flex-direction: column; gap: 8px; pointer-events: none; width: 90%; max-width: 360px; }
+.toast { background: var(--card2); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 12px 16px; font-size: 14px; box-shadow: var(--shadow); animation: toastIn 0.3s ease; display: flex; align-items: center; gap: 8px; }
+.toast.success { border-color: var(--green); }
+.toast.error { border-color: var(--red); }
+.toast.success::before { content: '✓'; color: var(--green); font-weight: 700; }
+.toast.error::before { content: '✕'; color: var(--red); font-weight: 700; }
+@keyframes toastIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ─── Image Upload ─── */
+.img-upload-wrap { position: relative; }
+.img-upload-preview { width: 100%; height: 140px; background: var(--bg3); border: 2px dashed var(--border2); border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; overflow: hidden; }
+.img-upload-preview img { width: 100%; height: 100%; object-fit: cover; }
+.img-upload-preview span { font-size: 13px; color: var(--text3); }
+.img-upload-preview .icon { font-size: 28px; }
+input[type="file"] { display: none; }
+
+/* ─── Misc ─── */
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+.badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+.badge-green { background: rgba(16,185,129,0.15); color: var(--green); }
+.badge-red { background: rgba(244,63,94,0.15); color: var(--red); }
+.badge-yellow { background: rgba(245,158,11,0.15); color: var(--yellow); }
+.empty-state { text-align: center; padding: 48px 24px; color: var(--text3); }
+.empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+.empty-state p { font-size: 14px; }
+.row { display: flex; gap: 10px; }
+.row .form-group { flex: 1; }
+
+/* ─── Trip Card ─── */
+.trip-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; cursor: pointer; transition: border-color 0.2s; }
+.trip-card:active { border-color: var(--accent); }
+.trip-card.selected { border-color: var(--accent); background: rgba(79,142,247,0.06); }
+.trip-card-header { display: flex; align-items: flex-start; justify-content: space-between; }
+.trip-card-name { font-size: 17px; font-weight: 700; }
+.trip-card-dates { font-size: 12px; color: var(--text2); margin-top: 3px; }
+.trip-code { font-family: monospace; font-size: 12px; color: var(--accent); background: rgba(79,142,247,0.1); padding: 3px 8px; border-radius: 6px; }
+.member-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.member-chip { font-size: 12px; padding: 3px 10px; border-radius: 20px; background: var(--bg3); color: var(--text2); }
+
+/* ─── Checkbox ─── */
+.checkbox-list { display: flex; flex-direction: column; gap: 8px; }
+.checkbox-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--bg3); border-radius: var(--radius-sm); cursor: pointer; }
+.checkbox-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); flex-shrink: 0; cursor: pointer; }
+.checkbox-label { font-size: 14px; font-weight: 500; }
+
+/* ─── Color pickers ─── */
+.avatar-colors { display: flex; gap: 8px; flex-wrap: wrap; }
+.av-color { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: border-color 0.15s; }
+.av-color.selected { border-color: white; transform: scale(1.1); }
+
+/* ─── Trip code ─── */
+.trip-code { cursor: pointer; user-select: none; }
+.trip-code:active { opacity: 0.6; }
+
+
+/* ─── Google Sign-In ─── */
+.login-divider { display:flex; align-items:center; gap:10px; margin:16px 0; color:var(--text3); font-size:12px; }
+.login-divider::before, .login-divider::after { content:''; flex:1; height:1px; background:var(--border2); }
+.btn-google {
+  width:100%; padding:12px; background:var(--bg3); border:1px solid var(--border2); border-radius:var(--radius-sm);
+  color:var(--text); font-size:15px; font-weight:500; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:10px; transition:opacity 0.2s, transform 0.1s;
+}
+.btn-google:active { transform:scale(0.98); opacity:0.85; }
+
+/* ─── Loading Splash ─── */
+#splash {
+  position: fixed; inset: 0; z-index: 999; background: var(--bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+  transition: opacity 0.4s;
+}
+#splash .s-logo { font-size: 52px; animation: float 1.5s ease-in-out infinite; }
+#splash .s-title { font-size: 26px; font-weight: 700; }
+#splash .s-tagline { font-size: 13px; color: var(--text3); font-weight: 300; letter-spacing: 1.5px; margin-top: 2px; font-style: italic; }
+#splash .spinner { width: 36px; height: 36px; border: 3px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── Scrollable sheet inner ─── */
+.sheet-inner-scroll { max-height: 55vh; overflow-y: auto; }
+.sheet-inner-scroll::-webkit-scrollbar { width: 0; }
+
+/* ─── Split Mode Toggle ─── */
+.split-mode-tabs { display:flex; gap:0; background:var(--bg3); border-radius:var(--radius-sm); padding:3px; margin-bottom:10px; }
+.split-mode-tab { flex:1; text-align:center; padding:7px 4px; font-size:12px; font-weight:600; border-radius:8px; cursor:pointer; color:var(--text3); transition:all 0.15s; }
+.split-mode-tab.active { background:var(--card2); color:var(--text); box-shadow:0 1px 4px rgba(0,0,0,0.3); }
+.split-row { display:flex; align-items:center; gap:8px; padding:8px 10px; background:var(--bg3); border-radius:var(--radius-sm); margin-bottom:6px; }
+.split-row input[type="checkbox"] { width:18px; height:18px; accent-color:var(--accent); flex-shrink:0; }
+.split-row .split-name { flex:1; font-size:14px; font-weight:500; }
+.split-row .split-input { width:80px; background:var(--bg); border:1px solid var(--border2); border-radius:8px; padding:5px 8px; color:var(--text); font-size:13px; text-align:right; outline:none; }
+.split-row .split-input:focus { border-color:var(--accent); }
+.split-row .split-unit { font-size:12px; color:var(--text3); flex-shrink:0; min-width:24px; }
+.split-summary { display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-radius:var(--radius-sm); font-size:13px; margin-top:4px; }
+.split-summary.ok { background:rgba(16,185,129,0.1); color:var(--green); }
+.split-summary.error { background:rgba(244,63,94,0.1); color:var(--red); }
+
+/* ─── Theme Toggle ─── */
+.theme-toggle-wrap { display:flex; align-items:center; gap:10px; background:var(--bg3); border-radius:var(--radius-sm); padding:10px 14px; margin-bottom:12px; }
+.theme-toggle-label { flex:1; font-size:14px; font-weight:500; }
+.theme-toggle-sub { font-size:12px; color:var(--text3); margin-top:2px; }
+.theme-icon { font-size:20px; flex-shrink:0; }
+
+/* ─── Language Toggle ─── */
+.lang-toggle-wrap { display:flex; align-items:center; gap:10px; background:var(--bg3); border-radius:var(--radius-sm); padding:10px 14px; margin-bottom:16px; }
+.lang-toggle-label { flex:1; font-size:14px; font-weight:500; }
+.lang-toggle-sub { font-size:12px; color:var(--text3); margin-top:2px; }
+.toggle-switch { position:relative; width:48px; height:26px; flex-shrink:0; }
+.toggle-switch input { opacity:0; width:0; height:0; }
+.toggle-slider { position:absolute; inset:0; background:var(--bg); border:1px solid var(--border2); border-radius:13px; cursor:pointer; transition:background 0.2s; }
+.toggle-slider::before { content:''; position:absolute; width:20px; height:20px; left:2px; top:2px; background:var(--text3); border-radius:50%; transition:transform 0.2s, background 0.2s; }
+.toggle-switch input:checked + .toggle-slider { background:var(--accent); border-color:var(--accent); }
+.toggle-switch input:checked + .toggle-slider::before { transform:translateX(22px); background:white; }
+
+/* ─── Account Input ─── */
+#exp-account { border-radius: var(--radius-sm); }
+#account-suggestions option { background: var(--card); color: var(--text); }
+
+/* ─── Daily Bar Chart ─── */
+.chart-filter-row { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+.chart-filter-row .form-select { flex:1; min-width:0; font-size:12px; padding:7px 28px 7px 10px; }
+.bar-chart-wrap { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:14px 10px 8px; margin-bottom:16px; overflow:hidden; }
+.bar-chart-canvas-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.bar-chart-canvas-wrap::-webkit-scrollbar { height:0; }
+#bar-chart-canvas { display:block; }
+.bar-legend { display:flex; flex-wrap:wrap; gap:6px 12px; margin-top:10px; padding:0 4px; }
+.bar-legend-item { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text2); }
+.bar-legend-dot { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+
+/* ─── No trips placeholder ─── */
+#no-trip-placeholder { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 12px; color: var(--text3); padding: 40px; text-align: center; }
+</style>
+
+<!-- Firebase Compat SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+</head>
+<body>
+
+<!-- ─── Loading Splash ─── -->
+<div id="splash">
+  <div class="s-logo">✈️</div>
+  <div class="s-title">Mily</div>
+  <div class="s-tagline">every miles, with Mily</div>
+  <div class="spinner"></div>
+</div>
+
+<!-- ─── Toast Container ─── -->
+<div id="toast-container"></div>
+
+<!-- ─── Login Screen ─── -->
+<div id="screen-login" style="display:none;">
+  <div class="login-logo">✈️</div>
+  <div class="login-title">Mily</div>
+  <div class="login-sub" id="login-sub">บันทึกรายจ่ายทริปกลุ่ม</div>
+  <div class="login-card">
+    <div class="form-group">
+      <label class="form-label" id="exp-label-login-user">ผู้ใช้งาน</label>
+      <select id="login-user" class="form-select"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="exp-label-login-pin">PIN</label>
+      <input id="login-pin" type="password" inputmode="numeric" maxlength="4" class="form-input pin-input" placeholder="••••">
+    </div>
+    <button class="btn-primary" onclick="doLogin()"><span id="login-btn-text">เข้าสู่ระบบ</span></button>
+    <div id="login-error" class="login-error"></div>
+    <div class="login-divider"><span id="login-or-text">หรือ</span></div>
+    <button class="btn-google" onclick="signInWithGoogle()">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+        <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.08-1.79 2.71v2.26h2.9c1.7-1.57 2.69-3.88 2.69-6.61z"/>
+        <path fill="#34A853" d="M9 18c2.43 0 4.47-.81 5.96-2.18l-2.9-2.26c-.81.54-1.85.86-3.06.86-2.36 0-4.36-1.6-5.07-3.74H.96v2.33C2.44 15.98 5.48 18 9 18z"/>
+        <path fill="#FBBC05" d="M3.93 10.68A5.41 5.41 0 0 1 3.65 9c0-.58.1-1.15.27-1.68V4.99H.96A8.96 8.96 0 0 0 0 9c0 1.45.35 2.83.96 4.01l2.97-2.33z"/>
+        <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.99L3.93 7.32C4.64 5.18 6.64 3.58 9 3.58z"/>
+      </svg>
+      <span id="login-google-text">เข้าสู่ระบบด้วย Google</span>
+    </button>
+  </div>
+</div>
+
+<!-- ─── Main Screen ─── -->
+<div id="screen-main" style="display:none; flex-direction:column; height:100%;">
+  <!-- Topbar -->
+  <div id="topbar">
+    <button class="icon-btn" onclick="openTripSelector()">≡</button>
+    <div class="topbar-title" id="topbar-trip-name">Mily <span id="topbar-user-name"></span></div>
+    <button class="icon-btn" id="admin-btn" onclick="openAdminModal()" style="display:none;">⚙️</button>
+    <button class="icon-btn" id="logout-btn" onclick="doLogout()" title="Logout" style="color:var(--text2);">⏏️</button>
+  </div>
+
+  <!-- Content -->
+  <div id="content">
+    <!-- No trip placeholder -->
+    <div id="no-trip-placeholder">
+      <div style="font-size:48px">🗺️</div>
+      <div id="no-trip-title" style="font-size:16px;font-weight:600;color:var(--text)">ยังไม่มี Trip</div>
+      <p id="no-trip-sub">แตะ ≡ เพื่อเลือก Trip หรือสร้าง Trip ใหม่</p>
+    </div>
+
+    <!-- Tab: Expenses -->
+    <div id="tab-expenses" class="tab-pane">
+      <div class="chips" id="cat-filter-chips">
+        <div class="chip chip-filter all active" data-cat="all">ทั้งหมด</div>
+      </div>
+      <div id="expenses-list"></div>
+    </div>
+
+    <!-- Tab: Calendar -->
+    <div id="tab-calendar" class="tab-pane">
+      <div class="cal-header">
+        <button class="icon-btn" onclick="calPrevMonth()">‹</button>
+        <div class="cal-month" id="cal-month-label"></div>
+        <button class="icon-btn" onclick="calNextMonth()">›</button>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="cal-events" id="cal-events"></div>
+    </div>
+
+    <!-- Tab: Summary -->
+    <div id="tab-summary" class="tab-pane">
+      <!-- Display currency selector -->
+      <div class="chart-filter-row" style="margin-bottom:12px;">
+        <select id="sum-display-currency" class="form-select" onchange="renderSummary()" style="font-weight:600;color:var(--accent);">
+          <option value="base">Base Currency</option>
+          <option value="THB">THB</option>
+        </select>
+      </div>
+      <div class="stat-grid" id="stat-cards"></div>
+      <!-- Daily Bar Chart -->
+      <div class="section-header" id="sum-bar-header" style="margin-bottom:8px;">
+        <div class="section-title" id="sum-bar-title">📅 Daily Expenses</div>
+      </div>
+      <div class="chart-filter-row">
+        <select id="bar-filter-user" class="form-select" onchange="renderBarChart()">
+          <option value="all">👤 All Members</option>
+        </select>
+        <select id="bar-filter-cat" class="form-select" onchange="renderBarChart()">
+          <option value="all">🏷 All Categories</option>
+        </select>
+        <select id="bar-filter-account" class="form-select" onchange="renderBarChart()">
+          <option value="all">💳 All Accounts</option>
+        </select>
+      </div>
+      <div class="chart-filter-row" style="margin-top:-2px;">
+        <select id="bar-stack-by" class="form-select" onchange="renderBarChart()" style="font-weight:600;color:var(--accent);">
+          <option value="category">🎨 Stack by Category</option>
+          <option value="user">👤 Stack by Member</option>
+          <option value="account">💳 Stack by Account</option>
+        </select>
+      </div>
+      <div class="bar-chart-wrap">
+        <div class="bar-chart-canvas-wrap">
+          <canvas id="bar-chart-canvas" height="200"></canvas>
+        </div>
+        <div class="bar-legend" id="bar-legend"></div>
+      </div>
+
+      <div class="section-header" id="sum-chart-header"><div class="section-title">📊 ค่าใช้จ่ายตามหมวด</div></div>
+      <div class="pie-wrap" style="margin-bottom:20px;">
+        <canvas id="pie-canvas" width="220" height="220"></canvas>
+        <div class="pie-legend" id="pie-legend"></div>
+      </div>
+      <div class="section-header" id="sum-balance-header"><div class="section-title">⚖️ ยอดคงเหลือ</div></div>
+      <div class="balance-list" id="balance-list" style="margin-bottom:16px;"></div>
+      <div class="section-header" id="sum-settle-header"><div class="section-title">💸 การชำระเงิน</div></div>
+      <div id="settlement-list"></div>
+    </div>
+
+    <!-- Tab: Notes -->
+    <div id="tab-notes" class="tab-pane">
+      <div id="notes-sections"></div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div id="bottomnav">
+    <div class="nav-item active" onclick="switchTab('expenses', this)">
+      <div class="nav-icon">💸</div><div class="nav-label">รายจ่าย</div>
+    </div>
+    <div class="nav-item" onclick="switchTab('calendar', this)">
+      <div class="nav-icon">📅</div><div class="nav-label">ปฏิทิน</div>
+    </div>
+    <div class="nav-item" onclick="switchTab('summary', this)">
+      <div class="nav-icon">📊</div><div class="nav-label">สรุป</div>
+    </div>
+    <div class="nav-item" onclick="switchTab('notes', this)">
+      <div class="nav-icon">📝</div><div class="nav-label">โน้ต</div>
+    </div>
+  </div>
+
+  <!-- FAB -->
+  <button id="fab" onclick="openAddExpense()">＋</button>
+</div>
+
+<!-- ─── Sheet: Add/Edit Expense ─── -->
+<div class="overlay" id="overlay-expense" onclick="closeExpenseSheet()"></div>
+<div class="sheet" id="sheet-expense">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-title" id="sheet-expense-title">เพิ่มรายจ่าย</div>
+    <button class="sheet-close" onclick="closeExpenseSheet()">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="form-group">
+      <label class="form-label" id="exp-label-name">ชื่อรายการ</label>
+      <input id="exp-name" type="text" class="form-input" placeholder="เช่น อาหารเย็น, ที่พัก...">
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label class="form-label" id="exp-label-amount">จำนวนเงิน</label>
+        <input id="exp-amount" type="number" class="form-input" placeholder="0.00" inputmode="decimal" oninput="validateSplit()">
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="exp-label-currency">สกุลเงิน</label>
+        <select id="exp-currency" class="form-select" onchange="updateExpRateField()">
+          <option value="THB">THB</option>
+          <option value="USD">USD</option>
+          <option value="EUR">EUR</option>
+          <option value="JPY">JPY</option>
+          <option value="SGD">SGD</option>
+          <option value="GBP">GBP</option>
+          <option value="KRW">KRW</option>
+          <option value="CNY">CNY</option>
+          <option value="HKD">HKD</option>
+          <option value="AUD">AUD</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group" id="exp-rate-group" style="display:none;">
+      <label class="form-label" id="exp-label-rate" data-i18n="exp_rate">อัตราแลกเปลี่ยน <span id="exp-rate-label-hint" style="font-weight:400;color:var(--text3);"></span></label>
+      <input id="exp-rate" type="number" class="form-input" placeholder="35.00" min="0" step="any" inputmode="decimal">
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="exp-label-account">💳 บัญชีที่ใช้จ่าย</label>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input id="exp-account" type="text" class="form-input" placeholder="Cash" style="flex:1;" list="account-suggestions">
+        <datalist id="account-suggestions"></datalist>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="exp-label-category">หมวดหมู่</label>
+      <div class="chips" id="cat-chips"></div>
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label class="form-label" id="exp-label-date">วันที่</label>
+        <input id="exp-date" type="date" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="exp-label-payer">ผู้จ่าย</label>
+        <select id="exp-payer" class="form-select"></select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="exp-label-split">หารกับ</label>
+      <div class="split-mode-tabs">
+        <div class="split-mode-tab active" onclick="setSplitMode('equal',this)">⚖️ เท่ากัน</div>
+        <div class="split-mode-tab" onclick="setSplitMode('ratio',this)">📊 สัดส่วน %</div>
+        <div class="split-mode-tab" onclick="setSplitMode('amount',this)">💰 ระบุยอด</div>
+      </div>
+      <div id="split-list"></div>
+      <div id="split-summary" style="display:none;"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="exp-label-location">📍 ตำแหน่ง</label>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input id="exp-location" type="text" class="form-input" placeholder="ชื่อสถานที่..." style="flex:1;">
+        <button class="icon-btn" onclick="getGPS()" title="GPS">📍</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="exp-label-note">หมายเหตุ</label>
+      <textarea id="exp-note" class="form-input notes-textarea" placeholder="หมายเหตุ..." rows="2"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="exp-label-image">รูปภาพ</label>
+      <div class="img-upload-wrap">
+        <div class="img-upload-preview" onclick="$('exp-img-input').click()">
+          <img id="exp-img-preview" style="display:none">
+          <div id="exp-img-placeholder"><div class="icon">📷</div><span id="exp-img-ph-text">แตะเพื่อเลือกรูป</span></div>
+        </div>
+        <input type="file" id="exp-img-input" accept="image/*" onchange="handleImageUpload(event)">
+      </div>
+    </div>
+  </div>
+  <div class="sheet-footer">
+    <button class="btn-outline" id="btn-delete-exp" onclick="deleteExpense()" style="display:none;">ลบ</button>
+    <button class="btn-primary" onclick="saveExpense()" id="btn-save-exp">💾 บันทึก</button>
+  </div>
+</div>
+
+<!-- ─── Sheet: Trip Selector ─── -->
+<div class="overlay" id="overlay-trips" onclick="closeTripSelector()"></div>
+<div class="sheet" id="sheet-trips">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-title" id="trip-selector-title">เลือก Trip</div>
+    <button class="sheet-close" onclick="closeTripSelector()">✕</button>
+  </div>
+  <div class="sheet-body" id="trip-list-container"></div>
+  <div class="sheet-footer">
+    <button class="btn-primary" id="btn-new-trip" onclick="openNewTripModal()" style="display:none;">+ สร้าง Trip ใหม่</button>
+  </div>
+</div>
+
+<!-- ─── Modal: Admin Panel ─── -->
+<div class="modal" id="modal-admin">
+  <div class="modal-header">
+    <button class="modal-back" onclick="closeAdminModal()">←</button>
+    <div class="modal-title" id="admin-modal-title">⚙️ Settings</div>
+  </div>
+  <div class="modal-body">
+    <!-- Admin-only sections (hidden for members) -->
+    <div id="admin-only-sections">
+      <div class="section-header" style="margin-bottom:8px;">
+        <div class="section-title" id="admin-users-title">👥 จัดการผู้ใช้</div>
+        <button class="btn-outline" style="width:auto;padding:6px 14px;font-size:13px;" onclick="openAddUserForm()" id="admin-add-user-btn">+ เพิ่ม</button>
+      </div>
+      <div id="user-list-admin"></div>
+      <div id="add-user-form" style="display:none; background:var(--card); border:1px solid var(--border2); border-radius:var(--radius); padding:16px; margin-top:12px;">
+        <div class="form-group">
+          <label class="form-label" id="exp-label-user-name">ชื่อ</label>
+          <input id="new-user-name" type="text" class="form-input" placeholder="ชื่อผู้ใช้">
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="exp-label-user-pin">PIN</label>
+          <input id="new-user-pin" type="password" inputmode="numeric" maxlength="4" class="form-input pin-input" placeholder="••••">
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="exp-label-user-email">Email (Google login)</label>
+          <input id="new-user-email" type="email" class="form-input" placeholder="name@gmail.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="exp-label-user-color">สีประจำตัว</label>
+          <div class="avatar-colors" id="avatar-color-picker"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="exp-label-user-trips">เข้าถึง Trip</label>
+          <div id="new-user-trips" class="checkbox-list"></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px;">
+          <button class="btn-outline" id="btn-cancel-user" onclick="$('add-user-form').style.display='none'">ยกเลิก</button>
+          <button class="btn-primary" id="btn-save-user" onclick="saveNewUser()">บันทึก</button>
+        </div>
+      </div>
+      <div class="divider"></div>
+    </div>
+    <!-- Trips section — visible to ALL users -->
+    <div id="trips-section">
+      <div class="section-header" style="margin-bottom:8px;">
+        <div class="section-title" id="admin-trips-title">🗺️ จัดการ Trip</div>
+        <button class="btn-outline" style="width:auto;padding:6px 14px;font-size:13px;" onclick="openNewTripModal()" id="admin-new-trip-btn">+ New Trip</button>
+      </div>
+      <div id="trip-admin-list"></div>
+      <div class="divider"></div>
+    </div>
+    <!-- Shared sections (all users) -->
+    <div class="section-header" style="margin-bottom:8px;">
+      <div class="section-title" id="admin-theme-section">🎨 Theme</div>
+    </div>
+    <div class="theme-toggle-wrap">
+      <span class="theme-icon" id="theme-icon">🌙</span>
+      <div>
+        <div class="theme-toggle-label" id="admin-theme-label">Dark Mode</div>
+        <div class="theme-toggle-sub" id="admin-theme-sub">Dark / Light</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="theme-toggle" onchange="setTheme(this.checked?'light':'dark')">
+        <span class="toggle-slider"></span>
+      </label>
+      <span id="theme-badge" style="font-size:12px;font-weight:700;color:var(--accent);min-width:36px;">Dark</span>
+    </div>
+    <div class="divider"></div>
+    <div class="section-header" style="margin-bottom:8px;">
+      <div class="section-title" id="admin-lang-section">🌐 Language</div>
+    </div>
+    <div class="lang-toggle-wrap">
+      <div>
+        <div class="lang-toggle-label" id="admin-lang-label">Menu Language</div>
+        <div class="lang-toggle-sub" id="admin-lang-sub">Thai / English</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="lang-toggle" onchange="setLanguage(this.checked?'en':'th')">
+        <span class="toggle-slider"></span>
+      </label>
+      <span id="lang-badge" style="font-size:12px;font-weight:700;color:var(--accent);min-width:24px;">EN</span>
+    </div>
+    <div class="divider"></div>
+    <button class="btn-outline" onclick="exportCSV()" style="width:100%;" id="admin-export-btn">📥 Export CSV</button>
+    <div style="text-align:center;margin-top:16px;font-size:11px;color:var(--text3);">Mily <span id="version-badge">v1.5</span> · Patch 1.5</div>
+  </div>
+</div>
+
+<!-- ─── Modal: New/Edit Trip ─── -->
+<div class="modal" id="modal-trip-form">
+  <div class="modal-header">
+    <button class="modal-back" onclick="$('modal-trip-form').classList.remove('show')">←</button>
+    <div class="modal-title" id="trip-form-title">สร้าง Trip ใหม่</div>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label class="form-label" id="exp-label-trip-name">ชื่อ Trip</label>
+      <input id="trip-name-input" type="text" class="form-input" placeholder="เช่น ทริปญี่ปุ่น 2025">
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label class="form-label" id="exp-label-trip-start">วันเริ่ม</label>
+        <input id="trip-start" type="date" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="exp-label-trip-end">วันสิ้นสุด</label>
+        <input id="trip-end" type="date" class="form-input">
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label class="form-label" id="exp-label-trip-currency">สกุลเงินหลัก</label>
+        <select id="trip-currency" class="form-select" onchange="updateTripRateHint(this.value)">
+          <option value="THB">THB</option>
+          <option value="USD">USD</option>
+          <option value="EUR">EUR</option>
+          <option value="JPY">JPY</option>
+          <option value="SGD">SGD</option>
+          <option value="GBP">GBP</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="exp-label-trip-budget">Budget</label>
+        <input id="trip-budget" type="number" class="form-input" placeholder="0">
+      </div>
+    </div>
+    <div class="form-group" id="trip-rate-group">
+      <label class="form-label" id="exp-label-trip-rate" data-i18n="trip_default_rate">อัตราแลกเปลี่ยน Default (1 สกุลหลัก = ? THB)</label>
+      <input id="trip-default-rate" type="number" class="form-input" placeholder="1.00" min="0" step="any">
+      <div style="font-size:11px;color:var(--text3);margin-top:4px;" id="trip-rate-hint">เช่น THB เป็นสกุลหลัก → ใส่ 1 / USD เป็นสกุลหลัก → ใส่ 35</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="exp-label-trip-members">สมาชิก</label>
+      <div id="trip-member-list" class="checkbox-list"></div>
+    </div>
+    <button class="btn-primary" onclick="saveTripForm()" style="margin-top:8px;" id="btn-save-trip">💾 บันทึก</button>
+  </div>
+</div>
+
+<!-- ─── Modal: Expense Detail ─── -->
+<div class="overlay" id="overlay-detail" onclick="closeDetail()"></div>
+<div class="sheet" id="sheet-detail">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-title" id="detail-title">รายละเอียด</div>
+    <button class="sheet-close" onclick="closeDetail()">✕</button>
+  </div>
+  <div class="sheet-body" id="detail-body"></div>
+  <div class="sheet-footer" id="detail-footer"></div>
+</div>
+
+<!-- Firebase loaded from <head> -->
+
+<script>
+// ─────────────────────────────────────────────
+// Firebase Init (with offline-demo fallback)
+// ─────────────────────────────────────────────
+const APP_VERSION = '1.5'; // Mily
+
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyA6iTxjqT3tGQPchmzAxalnegkC2W3mTTo",
+  authDomain: "trip-expense-manager-20b8b.firebaseapp.com",
+  databaseURL: "https://trip-expense-manager-20b8b-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "trip-expense-manager-20b8b",
+  storageBucket: "trip-expense-manager-20b8b.firebasestorage.app",
+  messagingSenderId: "163147563475",
+  appId: "1:163147563475:web:bf88ca644968a6d5ecef26",
+};
+
+let db, storage, auth, FIREBASE_OK = false;
+let __bootResolve;
+const __bootReady = new Promise(r => __bootResolve = r);
+
+function __initFirebase() {
+  try {
+    if (typeof firebase === 'undefined') throw new Error('Firebase SDK not loaded');
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.database();
+    storage = firebase.storage();
+    auth = firebase.auth();
+    FIREBASE_OK = true;
+    console.log('Firebase connected ✓');
+  } catch(e) {
+    console.warn('Firebase init failed, using localStorage fallback:', e.message);
+    // localStorage mock — full db.ref() API emulation
+    const LS_KEY = 'ts_firestore';
+    const lsGet = () => { try { return JSON.parse(localStorage.getItem(LS_KEY)||'{}'); } catch(e){return{};} };
+    const lsSet = (d) => localStorage.setItem(LS_KEY, JSON.stringify(d));
+    const getPath = (obj,parts) => parts.reduce((o,k)=>(o&&o[k]!==undefined?o[k]:undefined),obj);
+    const setPath = (obj,parts,val) => {
+      const last=parts[parts.length-1]; let cur=obj;
+      for(let i=0;i<parts.length-1;i++){if(!cur[parts[i]])cur[parts[i]]={};cur=cur[parts[i]];}
+      val===null ? delete cur[last] : (cur[last]=val);
+    };
+    const subs = {};
+    const notify = (rootPath) => {
+      const data=lsGet();
+      Object.keys(subs).forEach(sp => {
+        if(rootPath.startsWith(sp)||sp.startsWith(rootPath)){
+          const v=getPath(data,sp.split('/').filter(Boolean));
+          subs[sp].forEach(cb=>cb({val:()=>v}));
+        }
+      });
+    };
+    const makeRef = (path) => {
+      const parts=path.split('/').filter(Boolean);
+      const ref = {
+        set(val)   { const d=lsGet();setPath(d,parts,val);lsSet(d);notify(path);return Promise.resolve(); },
+        update(val){ const d=lsGet();const cur=getPath(d,parts)||{};Object.assign(cur,val);setPath(d,parts,cur);lsSet(d);notify(path);return Promise.resolve(); },
+        remove()   { const d=lsGet();setPath(d,parts,null);lsSet(d);notify(path);return Promise.resolve(); },
+        push(val)  {
+          const key='ls_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+          const d=lsGet();const cur=getPath(d,parts)||{};cur[key]=val;setPath(d,parts,cur);lsSet(d);notify(path);
+          return Promise.resolve({key});
+        },
+        once() { const d=lsGet();const v=parts.length?getPath(d,parts):d; return Promise.resolve({val:()=>v||null}); },
+        on(evt,cb) {
+          if(!subs[path])subs[path]=[];
+          subs[path].push(cb);
+          const d=lsGet();const v=parts.length?getPath(d,parts):d;
+          cb({val:()=>v||null});
+          return cb;
+        },
+        off(evt,cb){ if(subs[path])subs[path]=subs[path].filter(f=>f!==cb); },
+        ref(sub)   { return makeRef(path+'/'+sub); }
+      };
+      return ref;
+    };
+    db = { ref: (path='') => makeRef(path) };
+    storage = { ref: () => ({ putString:()=>Promise.resolve(), getDownloadURL:()=>Promise.resolve('') }) };
+  } // end catch
+  __bootResolve(); // unblock boot()
+} // end __initFirebase
+
+// Scripts are synchronous — firebase is defined by this point
+__initFirebase();
+
+// ─────────────────────────────────────────────
+// DOM Helpers
+// ─────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const $$ = sel => document.querySelectorAll(sel);
+// Escape user-supplied text before inserting into innerHTML (prevents stored XSS)
+function esc(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ─────────────────────────────────────────────
+// Constants
+// ─────────────────────────────────────────────
+const ADMIN_EMAIL = 'YOUR_ADMIN_EMAIL@gmail.com'; // ← เปลี่ยนเป็น Google email ของ Admin (ลิ้ม)
+const ADMIN_PIN = '7878'; // Admin PIN login (ทางเลือกเสริมจาก Google)
+
+// ⚠️ DEV/LOCAL TESTING ONLY — ตั้ง true ให้ทุกคนเห็นสิทธิ์เท่า Admin
+// ก่อน deploy จริงต้องเปลี่ยนกลับเป็น false เสมอ!
+const DEV_ALL_ADMIN = false;
+
+// Effective admin check — honors DEV flag for local testing
+function isAdmin() {
+  return DEV_ALL_ADMIN || !!(currentUser && currentUser.isAdmin);
+}
+const CATEGORY_DEFS = [
+  { id: 'food',      key: 'cat_food',      color: '#fb923c' },
+  { id: 'transport', key: 'cat_transport',  color: '#4f8ef7' },
+  { id: 'hotel',     key: 'cat_hotel',      color: '#a855f7' },
+  { id: 'activity',  key: 'cat_activity',   color: '#10b981' },
+  { id: 'shopping',  key: 'cat_shopping',   color: '#ec4899' },
+  { id: 'health',    key: 'cat_health',     color: '#f43f5e' },
+  { id: 'other',     key: 'cat_other',      color: '#9aa5bc' },
+];
+// Getter: always fresh translations
+function getCategories() {
+  return CATEGORY_DEFS.map(d => ({ ...d, label: t(d.key) }));
+}
+const AVATAR_COLORS = ['#4f8ef7','#10b981','#f59e0b','#ec4899','#a855f7','#fb923c','#06b6d4','#f43f5e'];
+const NOTES_SECTIONS = [
+  { id: 'flight',    icon: '✈️', key: 'note_flight' },
+  { id: 'hotel',     icon: '🏨', key: 'note_hotel' },
+  { id: 'itinerary', icon: '🗺️', key: 'note_itinerary' },
+  { id: 'misc',      icon: '📌', key: 'note_misc' },
+];
+
+// ─────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────
+let currentUser = null; // { id, name, pin, color, trips, isAdmin }
+let currentTrip = null; // trip object
+let allTrips = {};
+let allUsers = {};
+let allExpenses = {};
+let currentTab = 'expenses';
+let editingExpenseId = null;
+let selectedCategory = 'other';
+let selectedImgBase64 = null;
+let calYear, calMonth;
+let fbListeners = [];
+let editingTripId = null;
+
+// ─────────────────────────────────────────────
+// Auth / Login
+// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// Firebase Auth Helpers
+// ─────────────────────────────────────────────
+
+// Ensure SOME Firebase Auth session exists (anonymous if nothing else).
+// Required by Security Rules (auth != null) so the app can read/write
+// without exposing data to raw API requests.
+async function ensureAnonymousAuth() {
+  if (!FIREBASE_OK || !auth) return;
+  if (auth.currentUser) return; // already signed in
+  try {
+    // Timeout after 5s so boot doesn't hang if Auth is slow
+    await Promise.race([
+      auth.signInAnonymously(),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('auth timeout')), 5000))
+    ]);
+  } catch(e) {
+    console.warn('Anonymous auth skipped:', e.message);
+    // Non-fatal — app still works, Firebase Rules may block writes
+  }
+}
+
+// Admin and members can both sign in with Google.
+// Admin is identified by ADMIN_EMAIL; members are matched by their
+// `email` field set by the admin in Manage Users.
+async function signInWithGoogle() {
+  if (!FIREBASE_OK || !auth) {
+    showToast(currentLang==='en' ? 'Sign-in unavailable offline' : 'ใช้งานออฟไลน์ไม่ได้', 'error');
+    return;
+  }
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    const result = await auth.signInWithPopup(provider);
+    const email = (result.user?.email || '').toLowerCase();
+
+    if (email === ADMIN_EMAIL.toLowerCase()) {
+      currentUser = { id: '__admin__', name: adminDisplayName(), isAdmin: true, color: '#f59e0b', trips: [], email };
+    } else {
+      const entry = Object.entries(allUsers).find(([, u]) => (u.email || '').toLowerCase() === email);
+      if (!entry) {
+        await auth.signOut();
+        await ensureAnonymousAuth();
+        showToast(currentLang==='en' ? 'No account linked to this Google email' : 'ไม่พบบัญชีที่ผูกกับ Email นี้', 'error');
+        return;
+      }
+      const [, user] = entry;
+      currentUser = { ...user, isAdmin: false, email };
+    }
+
+    localStorage.setItem('ts_session', JSON.stringify(currentUser));
+    startMain();
+  } catch (e) {
+    console.warn('Google sign-in failed:', e.code, e.message);
+    let msg = currentLang==='en' ? 'Google sign-in failed' : 'เข้าสู่ระบบด้วย Google ไม่สำเร็จ';
+    if (e.code === 'auth/unauthorized-domain') {
+      msg = currentLang==='en'
+        ? 'This domain is not authorized. Add it in Firebase Console → Authentication → Settings → Authorized domains'
+        : 'Domain นี้ยังไม่ได้รับอนุญาต — เพิ่มใน Firebase Console → Authentication → Authorized domains';
+    } else if (e.code === 'auth/popup-blocked') {
+      msg = currentLang==='en' ? 'Popup blocked — allow popups for this site' : 'Popup ถูกบล็อก — อนุญาต popup สำหรับเว็บนี้';
+    } else if (e.code === 'auth/operation-not-allowed') {
+      msg = currentLang==='en' ? 'Google sign-in not enabled in Firebase Console' : 'ยังไม่ได้เปิด Google login ใน Firebase Console';
+    }
+    showToast(msg, 'error');
+  }
+}
+
+
+function loadLoginUserList() {
+  const sel = $('login-user');
+  sel.innerHTML = '';
+  // Admin option always first (PIN login)
+  const adminOpt = document.createElement('option');
+  adminOpt.value = '__admin__';
+  adminOpt.textContent = adminDisplayName();
+  sel.appendChild(adminOpt);
+  const users = Object.values(allUsers);
+  if (users.length === 0) {
+    // Firebase not ready yet — show placeholder
+    const ph = document.createElement('option');
+    ph.value = '';
+    ph.disabled = true;
+    ph.textContent = currentLang === 'en' ? '— loading members... —' : '— กำลังโหลด... —';
+    sel.appendChild(ph);
+  } else {
+    users.forEach(u => {
+      const opt = document.createElement('option');
+      opt.value = u.id;
+      opt.textContent = u.name;
+      sel.appendChild(opt);
+    });
+  }
+}
+
+function doLogin() {
+  const userId = $('login-user').value;
+  const pin = $('login-pin').value;
+  const errEl = $('login-error');
+  errEl.style.display = 'none';
+
+  if (userId === '__admin__') {
+    // Admin PIN login (alternative to Google)
+    if (pin !== ADMIN_PIN) {
+      errEl.textContent = t('login_error');
+      errEl.style.display = 'block';
+      return;
+    }
+    currentUser = { id: '__admin__', name: adminDisplayName(), isAdmin: true, color: '#f59e0b', trips: [] };
+  } else {
+    const user = allUsers[userId];
+    if (!user || user.pin !== pin) {
+      errEl.textContent = t('login_error');
+      errEl.style.display = 'block';
+      return;
+    }
+    currentUser = { ...user, isAdmin: false };
+  }
+
+  localStorage.setItem('ts_session', JSON.stringify(currentUser));
+  $('login-pin').value = '';
+  startMain();
+}
+
+function doLogout() {
+  const msg = currentLang === 'en' ? 'Sign out?' : 'ออกจากระบบ?';
+  if (!confirm(msg)) return;
+  localStorage.removeItem('ts_session');
+  currentUser = null; currentTrip = null;
+  fbListeners.forEach(off => off());
+  fbListeners = [];
+  if (FIREBASE_OK && auth) {
+    auth.signOut().then(ensureAnonymousAuth);
+  }
+  $('screen-login').style.display = 'flex';
+  $('screen-main').style.display = 'none';
+}
+
+function tryRestoreSession() {
+  const s = localStorage.getItem('ts_session');
+  if (s) {
+    try { currentUser = JSON.parse(s); } catch(e) {}
+  }
+}
+
+// ─────────────────────────────────────────────
+// Main Init
+// ─────────────────────────────────────────────
+function startMain() {
+  $('screen-login').style.display = 'none';
+  $('screen-main').style.display = 'flex';
+  $('topbar-user-name').textContent = currentUser.name;
+  $('admin-btn').style.display = 'flex'; // all users can access settings
+  $('btn-new-trip').style.display = isAdmin() ? 'block' : 'none';
+
+  subscribeData();
+  switchTab('expenses');
+  initCategoryChips();
+  applyTheme();
+  applyLanguage(); // apply saved theme + language preference
+  // ขอ permission GPS ทันที เพื่อ cache ตำแหน่งไว้เป็น default
+  requestLocationPermission();
+}
+
+function subscribeData() {
+  fbListeners.forEach(off => off());
+  fbListeners = [];
+
+  const tripsRef = db.ref('trips');
+  const tripsHandler = tripsRef.on('value', snap => {
+    allTrips = snap.val() || {};
+    if (currentTrip && allTrips[currentTrip.id]) {
+      currentTrip = { ...allTrips[currentTrip.id], id: currentTrip.id };
+    }
+    updateTripUI();
+  });
+  fbListeners.push(() => tripsRef.off('value', tripsHandler));
+
+  const usersRef = db.ref('users');
+  const usersHandler = usersRef.on('value', snap => {
+    allUsers = snap.val() || {};
+    loadLoginUserList();
+    renderAdminUserList();
+  });
+  fbListeners.push(() => usersRef.off('value', usersHandler));
+}
+
+function subscribeExpenses(tripId) {
+  // Remove old expense listener
+  if (window._expListener) {
+    db.ref(`expenses/${window._expListenerTrip}`).off('value', window._expListener);
+  }
+  window._expListenerTrip = tripId;
+  window._expListener = db.ref(`expenses/${tripId}`).on('value', snap => {
+    allExpenses = snap.val() || {};
+    renderExpenses();
+    renderCalendar();
+    renderSummary();
+  });
+}
+
+// ─────────────────────────────────────────────
+// Trip
+// ─────────────────────────────────────────────
+function getAccessibleTrips() {
+  if (isAdmin()) return Object.entries(allTrips).map(([id, t]) => ({ ...t, id }));
+  return Object.entries(allTrips)
+    .filter(([id]) => (currentUser.trips || []).includes(id))
+    .map(([id, t]) => ({ ...t, id }));
+}
+
+function updateTripUI() {
+  const trips = getAccessibleTrips();
+  const hasCurrent = currentTrip && trips.find(t => t.id === currentTrip.id);
+  if (hasCurrent) {
+    // refresh currentTrip data
+    currentTrip = { ...allTrips[currentTrip.id], id: currentTrip.id };
+    $('topbar-trip-name').innerHTML =
+      `${currentTrip.name} <span>${currentUser.name}</span>`;
+  } else if (trips.length > 0) {
+    setCurrentTrip(trips[0]);
+  } else {
+    setCurrentTrip(null);
+  }
+  renderAdminTripList();
+  renderAdminUserList();
+}
+
+function setCurrentTrip(trip) {
+  currentTrip = trip;
+  const hasCurrent = !!trip;
+  $('no-trip-placeholder').style.display = hasCurrent ? 'none' : 'flex';
+  $('fab').style.display = hasCurrent ? 'flex' : 'none';
+  $('bottomnav').style.opacity = hasCurrent ? '1' : '0.4';
+  $('bottomnav').style.pointerEvents = hasCurrent ? '' : 'none';
+
+  if (trip) {
+    $('topbar-trip-name').innerHTML =
+      `${esc(trip.name)} <span>${currentUser.name}</span>`;
+    subscribeExpenses(trip.id);
+    subscribeNotes(trip.id);
+    switchTab(currentTab);
+  } else {
+    $('topbar-trip-name').innerHTML =
+      `Mily <span>${currentUser.name}</span>`;
+    // Clear content
+    $('expenses-list').innerHTML = '';
+    $('cal-grid').innerHTML = '';
+    $('cal-events').innerHTML = '';
+    $('stat-cards').innerHTML = '';
+    $('balance-list').innerHTML = '';
+    $('settlement-list').innerHTML = '';
+    $('notes-sections').innerHTML = '';
+    $('pie-legend').innerHTML = '';
+    const ctx = $('pie-canvas').getContext('2d');
+    ctx.clearRect(0,0,220,220);
+  }
+}
+
+function openTripSelector() {
+  const trips = getAccessibleTrips();
+  const container = $('trip-list-container');
+  container.innerHTML = '';
+  if (!trips.length) {
+    container.innerHTML = `<div class="empty-state"><div class="icon">🗺️</div><p>${t('trip_no_trip')}<br>${t('trip_no_trip_sub')}</p></div>`;
+  } else {
+    trips.forEach(tr => {
+      const div = document.createElement('div');
+      div.className = 'trip-card' + (currentTrip?.id === tr.id ? ' selected' : '');
+      div.innerHTML = `
+        <div class="trip-card-header">
+          <div style="flex:1;min-width:0;">
+            <div class="trip-card-name">${esc(tr.name)}</div>
+            <div class="trip-card-dates">${tr.startDate||'—'} – ${tr.endDate||'—'} · ${tr.currency||'THB'}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+            <span class="trip-code" onclick="copyTripCode('${tr.code||''}',event)" title="คัดลอก">${t.code||'------'} 📋</span>
+            ${t.budget ? `<span style="font-size:11px;color:var(--text3)">Budget: ${formatAmt(t.budget)}</span>` : ''}
+          </div>
+        </div>
+        <div class="member-chips" style="margin-top:8px;">${getTripMemberChips(t)}</div>`;
+      div.onclick = () => { setCurrentTrip(t); closeTripSelector(); };
+      container.appendChild(div);
+    });
+  }
+  $('btn-new-trip').style.display = isAdmin() ? 'block' : 'none';
+  showSheet('trips');
+}
+
+function copyTripCode(code, e) {
+  e.stopPropagation();
+  navigator.clipboard?.writeText(code).then(() => showToast(t('toast_copied')+' '+code+t('toast_copied_suffix')))
+    .catch(() => showToast(code));
+}
+function closeTripSelector() { closeSheet('trips'); }
+
+function getTripMemberChips(trip) {
+  const tr = trip || {};
+  const members = tr.members || [];
+  return members.slice(0,5).map(uid => {
+    const u = uid === '__admin__' ? { name: adminDisplayName(), color: '#f59e0b' } : allUsers[uid];
+    if (!u) return '';
+    return `<span class="member-chip" style="background:${u.color||'var(--bg3)'}22;color:${u.color||'var(--text2)'}">${esc(u.name)}</span>`;
+  }).join('') + (members.length > 5 ? `<span class="member-chip">+${members.length-5}</span>` : '');
+}
+
+function getTripMembers(trip) {
+  const t = trip || currentTrip;
+  if (!t) return [];
+  const memberUids = t.members || [];
+  const result = memberUids.map(uid => {
+    if (uid === '__admin__') return { id: '__admin__', name: adminDisplayName(), color: '#f59e0b' };
+    const u = allUsers[uid];
+    if (!u) {
+      // User exists in trip.members but not yet in allUsers — create placeholder
+      return { id: uid, name: uid, color: '#9aa5bc' };
+    }
+    return { ...u, id: uid };
+  });
+  // If trip has no members at all, fallback: show all known users + admin
+  if (result.length === 0) {
+    const everyone = [{ id: '__admin__', name: '👑 ลิ้ม', color: '#f59e0b' }];
+    Object.entries(allUsers).forEach(([uid, u]) => everyone.push({ ...u, id: uid }));
+    return everyone;
+  }
+  return result;
+}
+
+// ─────────────────────────────────────────────
+// Tab Navigation
+// ─────────────────────────────────────────────
+function switchTab(tab, el) {
+  currentTab = tab;
+  $$('.tab-pane').forEach(p => p.classList.remove('active'));
+  $$('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  else {
+    const navItems = $$('.nav-item');
+    const tabs = ['expenses','calendar','summary','notes'];
+    const idx = tabs.indexOf(tab);
+    if (idx >= 0) navItems[idx]?.classList.add('active');
+  }
+  const pane = $('tab-'+tab);
+  if (pane) pane.classList.add('active');
+
+  if (tab === 'calendar') renderCalendar();
+  if (tab === 'summary') renderSummary();
+  if (tab === 'notes') renderNotes();
+  if (tab === 'expenses') renderExpenses();
+}
+
+// ─────────────────────────────────────────────
+// Expenses
+// ─────────────────────────────────────────────
+let activeFilterCat = 'all';
+
+function initCategoryChips() {
+  const wrap = $('cat-filter-chips');
+  wrap.innerHTML = `<div class="chip chip-filter all active" data-cat="all" onclick="filterByCat('all',this)">${t('cat_all')}</div>`;
+  getCategories().forEach(c => {
+    const d = document.createElement('div');
+    d.className = 'chip chip-filter';
+    d.setAttribute('data-cat', c.id);
+    d.textContent = c.label;
+    d.onclick = () => filterByCat(c.id, d);
+    wrap.appendChild(d);
+  });
+
+  // Expense form category chips
+  const expWrap = $('cat-chips');
+  expWrap.innerHTML = '';
+  getCategories().forEach(c => {
+    const d = document.createElement('div');
+    d.className = 'chip' + (c.id === 'other' ? ' active' : '');
+    d.textContent = c.label;
+    d.onclick = () => {
+      $$('#cat-chips .chip').forEach(x => x.classList.remove('active'));
+      d.classList.add('active');
+      selectedCategory = c.id;
+    };
+    expWrap.appendChild(d);
+  });
+}
+
+function filterByCat(cat, el) {
+  activeFilterCat = cat;
+  $$('#cat-filter-chips .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderExpenses();
+}
+
+function renderExpenses() {
+  const container = $('expenses-list');
+  if (!currentTrip) { container.innerHTML = ''; return; }
+  const expenses = Object.entries(allExpenses)
+    .filter(([, e]) => activeFilterCat === 'all' || e.category === activeFilterCat)
+    .map(([id, e]) => ({ ...e, id }))
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+  if (!expenses.length) {
+    container.innerHTML = `<div class="empty-state"><div class="icon">💸</div><p>${currentLang==='en'?'No expenses yet<br>Tap + to add':'ยังไม่มีรายจ่าย<br>กด + เพื่อเพิ่ม'}</p></div>`;
+    return;
+  }
+
+  const groups = {};
+  expenses.forEach(e => {
+    const d = e.date || 'ไม่ระบุวัน';
+    if (!groups[d]) groups[d] = [];
+    groups[d].push(e);
+  });
+
+  container.innerHTML = '';
+  Object.keys(groups).sort((a,b) => b.localeCompare(a)).forEach(day => {
+    const gDiv = document.createElement('div');
+    gDiv.className = 'day-group';
+    const label = formatDateLabel(day);
+    gDiv.innerHTML = `<div class="day-label">${label}</div>`;
+    groups[day].forEach(e => {
+      const cat = getCategories().find(c => c.id === e.category) || getCategories().at(-1);
+      const payer = e.payer === '__admin__' ? adminDisplayName() : (allUsers[e.payer]?.name || e.payer || '?');
+      const card = document.createElement('div');
+      card.className = 'expense-card';
+      card.innerHTML = `
+        <div class="expense-cat-icon" style="background:${cat.color}22">${cat.label.split(' ')[0]}</div>
+        <div class="expense-info">
+          <div class="expense-name">${esc(e.name)}</div>
+          <div class="expense-meta">👤 ${esc(payer)}${e.account ? ' · 💳 '+esc(e.account) : ''}${e.location ? ' · 📍 '+esc(e.location) : ''}${e.updatedBy && e.updatedBy !== e.payer ? ' · ✏️ '+esc(e.updatedBy==='__admin__'?adminDisplayName():(allUsers[e.updatedBy]?.name||e.updatedBy)) : ''}</div>
+        </div>
+        ${e.imageUrl ? `<img class="expense-thumb" src="${e.imageUrl}" alt="">` : ''}
+        <div class="expense-amount">
+          <div class="amt" style="color:${cat.color}">${formatAmt(e.amountBase || e.amount)}</div>
+          <div class="currency">${currentTrip.currency || 'THB'}</div>
+        </div>`;
+      card.onclick = () => openExpenseDetail(e);
+      gDiv.appendChild(card);
+    });
+    container.appendChild(gDiv);
+  });
+}
+
+function formatDateLabel(dateStr) {
+  if (!dateStr || dateStr === t('unspecified_date') || dateStr === 'ไม่ระบุวัน' || dateStr === 'Unspecified') return dateStr;
+  const d = new Date(dateStr);
+  if (isNaN(d)) return dateStr;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diff = Math.round((d - today) / 86400000);
+  const dNames = t('day_names');
+  const mNames = t('month_names');
+  const yr = currentLang==='th' ? d.getFullYear()+543 : d.getFullYear();
+  const base = `${d.getDate()} ${mNames[d.getMonth()]} ${yr} (${dNames[d.getDay()]})`;
+  if (diff === 0) return t('day_today') + ' · ' + base;
+  if (diff === -1) return t('day_yesterday') + ' · ' + base;
+  return '📅 ' + base;
+}
+
+function formatAmt(n) {
+  if (n == null) return '0';
+  return Number(n).toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
+
+// ─────────────────────────────────────────────
+// Add / Edit Expense
+// ─────────────────────────────────────────────
+function openAddExpense() {
+  if (!currentTrip) { showToast(t('toast_select_trip'), 'error'); return; }
+  // Always use latest trip data from allTrips
+  if (allTrips[currentTrip.id]) {
+    currentTrip = { ...allTrips[currentTrip.id], id: currentTrip.id };
+  }
+  editingExpenseId = null;
+  selectedImgBase64 = null;
+  $('sheet-expense-title').textContent = t('exp_title_add');
+  $('exp-name').value = '';
+  $('exp-amount').value = '';
+  $('exp-note').value = '';
+  $('exp-account').value = '';
+  $('exp-location').value = '';
+  populateAccountSuggestions();
+  $('exp-date').value = new Date().toISOString().split('T')[0];
+  $('exp-img-preview').style.display = 'none';
+  $('exp-img-placeholder').style.display = 'flex';
+  $('btn-delete-exp').style.display = 'none';
+  // Default currency to trip currency
+  const sel = $('exp-currency');
+  sel.value = currentTrip.currency || 'THB';
+  $('exp-rate').value = '';
+  updateExpRateField();
+  // Reset category
+  selectedCategory = 'other';
+  const _cats = getCategories();
+  $$('#cat-chips .chip').forEach((chip, i) => {
+    chip.classList.toggle('active', _cats[i]?.id === 'other');
+  });
+  // Reset split mode to equal
+  currentSplitMode = 'equal';
+  $$('.split-mode-tab').forEach((t,i) => t.classList.toggle('active', i===0));
+  $('split-summary').style.display = 'none';
+  // Payer
+  renderPayerSelect();
+  // Split list
+  renderSplitList(null);
+  showSheet('expense');
+  // Auto-fill location from cached GPS
+  if (window._cachedLocation) {
+    $('exp-location').value = window._cachedLocation;
+  } else {
+    getGPSSilent();
+  }
+}
+
+function openEditExpense(exp) {
+  if (!isAdmin() && exp.payer !== currentUser.id) {
+    showToast(currentLang==='en'?'You can only edit your own expenses':'แก้ไขได้เฉพาะรายจ่ายของตัวเอง', 'error'); return;
+  }
+  editingExpenseId = exp.id;
+  selectedImgBase64 = null;
+  $('sheet-expense-title').textContent = t('exp_title_edit');
+  $('exp-name').value = exp.name || '';
+  $('exp-amount').value = exp.amount || '';
+  $('exp-note').value = exp.note || '';
+  $('exp-account').value = exp.account || '';
+  $('exp-location').value = exp.location || '';
+  populateAccountSuggestions();
+  $('exp-date').value = exp.date || '';
+  $('exp-currency').value = exp.currency || currentTrip.currency || 'THB';
+  $('btn-delete-exp').style.display = 'block';
+  // Image
+  if (exp.imageUrl) {
+    $('exp-img-preview').src = exp.imageUrl;
+    $('exp-img-preview').style.display = 'block';
+    $('exp-img-placeholder').style.display = 'none';
+  } else {
+    $('exp-img-preview').style.display = 'none';
+    $('exp-img-placeholder').style.display = 'flex';
+  }
+  // Category
+  selectedCategory = exp.category || 'other';
+  const _cats2 = getCategories();
+  $$('#cat-chips .chip').forEach((chip, i) => {
+    chip.classList.toggle('active', _cats2[i]?.id === selectedCategory);
+  });
+  renderPayerSelect(exp.payer);
+  // Restore split mode
+  currentSplitMode = exp.splitMode || 'equal';
+  const modeIdx = ['equal','ratio','amount'].indexOf(currentSplitMode);
+  $$('.split-mode-tab').forEach((t,i) => t.classList.toggle('active', i===modeIdx));
+  $('split-summary').style.display = 'none';
+  renderSplitList(exp.splitAmounts
+    ? Object.keys(exp.splitAmounts)
+    : (exp.splitWith || null));
+  // Restore custom amounts after render
+  if (exp.splitAmounts && currentSplitMode !== 'equal') {
+    setTimeout(() => {
+      $$('#split-list .split-input').forEach(inp => {
+        const uid = inp.dataset.uid;
+        if (uid && exp.splitAmounts[uid] != null) {
+          const amount = parseFloat($('exp-amount').value) || 0;
+          if (currentSplitMode === 'ratio' && amount > 0) {
+            inp.value = ((exp.splitAmounts[uid] / amount) * 100).toFixed(1);
+          } else {
+            inp.value = exp.splitAmounts[uid].toFixed(2);
+          }
+        }
+      });
+      validateSplit();
+    }, 50);
+  }
+  closeDetail();
+  showSheet('expense');
+}
+
+function renderPayerSelect(selected) {
+  const sel = $('exp-payer');
+  sel.innerHTML = '';
+  const members = getTripMembers();
+  members.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.id;
+    opt.textContent = m.name;
+    if (selected ? m.id === selected : m.id === currentUser.id) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+let currentSplitMode = 'equal'; // 'equal' | 'ratio' | 'amount'
+
+function setSplitMode(mode, el) {
+  currentSplitMode = mode;
+  $$('.split-mode-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderSplitList(null, true); // re-render keeping current checks
+  validateSplit();
+}
+
+function renderSplitList(splitData, keepChecked) {
+  const container = $('split-list');
+  // If keepChecked, remember current checked state
+  const prevChecked = {};
+  const prevVals = {};
+  if (keepChecked) {
+    container.querySelectorAll('.split-row').forEach(row => {
+      const cb = row.querySelector('input[type="checkbox"]');
+      const inp = row.querySelector('.split-input');
+      if (cb) prevChecked[cb.value] = cb.checked;
+      if (inp) prevVals[inp.dataset.uid] = inp.value;
+    });
+  }
+  container.innerHTML = '';
+  const members = getTripMembers();
+  const isEqual = currentSplitMode === 'equal';
+  const isRatio = currentSplitMode === 'ratio';
+  const isAmount = currentSplitMode === 'amount';
+  const defaultRatio = members.length ? Math.round(100/members.length) : 0;
+
+  members.forEach((m, i) => {
+    let checked;
+    if (keepChecked && m.id in prevChecked) checked = prevChecked[m.id];
+    else if (splitData) checked = Array.isArray(splitData) ? splitData.includes(m.id) : (m.id in splitData);
+    else checked = true;
+
+    let defaultVal = '';
+    if (isRatio) defaultVal = keepChecked && prevVals[m.id] ? prevVals[m.id] : defaultRatio;
+    if (isAmount) defaultVal = keepChecked && prevVals[m.id] ? prevVals[m.id] : '';
+
+    const row = document.createElement('div');
+    row.className = 'split-row';
+    row.innerHTML = `
+      <input type="checkbox" value="${m.id}" ${checked ? 'checked' : ''}
+        onchange="validateSplit()">
+      <span class="split-name" style="color:${m.color||'var(--text)'}">${esc(m.name)}</span>
+      ${!isEqual ? `
+        <input type="number" class="split-input" data-uid="${m.id}"
+          value="${defaultVal}" min="0" placeholder="0"
+          oninput="validateSplit()" ${!checked ? 'disabled' : ''}>
+        <span class="split-unit">${isRatio ? '%' : (currentTrip?.currency||'THB')}</span>
+      ` : ''}`;
+    // sync disabled state when checkbox changes
+    const cb = row.querySelector('input[type="checkbox"]');
+    const inp = row.querySelector('.split-input');
+    if (cb && inp) {
+      cb.addEventListener('change', () => {
+        inp.disabled = !cb.checked;
+        if (!cb.checked) inp.value = '';
+        validateSplit();
+      });
+    }
+    container.appendChild(row);
+  });
+  validateSplit();
+}
+
+function validateSplit() {
+  const summary = $('split-summary');
+  if (currentSplitMode === 'equal') {
+    summary.style.display = 'none';
+    return true;
+  }
+  const amount = parseFloat($('exp-amount').value) || 0;
+  const rows = $$('#split-list .split-row');
+  let total = 0;
+  rows.forEach(row => {
+    const cb = row.querySelector('input[type="checkbox"]');
+    const inp = row.querySelector('.split-input');
+    if (cb?.checked && inp) total += parseFloat(inp.value) || 0;
+  });
+  summary.style.display = 'flex';
+  const cur = currentTrip?.currency || 'THB';
+  if (currentSplitMode === 'ratio') {
+    const checkedCount = $$('#split-list .split-row input[type="checkbox"]:checked').length;
+    if (checkedCount === 0) { summary.style.display='none'; return false; }
+    const ok = Math.abs(total - 100) < 0.01;
+    summary.className = 'split-summary ' + (ok ? 'ok' : 'error');
+    summary.innerHTML = `<span>${ok ? t('split_ok_ratio') : t('split_err_ratio')+' '+total.toFixed(1)+'%'}</span><b>${total.toFixed(1)}%</b>`;
+    return ok;
+  } else {
+    const ok = amount > 0 && Math.abs(total - amount) < 0.01;
+    summary.className = 'split-summary ' + (ok ? 'ok' : 'error');
+    summary.innerHTML = `<span>${ok ? t('split_ok_amount') : amount===0 ? t('split_err_no_amount') : t('split_err_amount')+' '+amount.toFixed(2)}</span><b>${total.toFixed(2)} ${cur}</b>`;
+    return ok;
+  }
+}
+
+function getSplitData() {
+  const members = getTripMembers();
+  const amount = parseFloat($('exp-amount').value) || 0;
+  const rows = $$('#split-list .split-row');
+  const checked = [], customAmounts = {};
+
+  rows.forEach(row => {
+    const cb  = row.querySelector('input[type="checkbox"]');
+    const inp = row.querySelector('.split-input');
+    if (!cb?.checked) return;
+    checked.push(cb.value);
+    if (inp) {
+      const val = parseFloat(inp.value) || 0;
+      customAmounts[cb.value] = currentSplitMode === 'ratio' ? (val/100)*amount : val;
+    }
+  });
+  // Fallback: if nobody checked in equal mode, split with everyone
+  const splitWith = (checked.length === 0 && currentSplitMode === 'equal')
+    ? members.map(m => m.id)
+    : checked;
+  return {
+    splitWith,
+    splitMode: currentSplitMode,
+    splitAmounts: currentSplitMode === 'equal' ? null : customAmounts,
+  };
+}
+
+async function saveExpense() {
+  const name = $('exp-name').value.trim();
+  const amount = parseFloat($('exp-amount').value);
+  const currency = $('exp-currency').value;
+  const date = $('exp-date').value;
+  const payer = $('exp-payer').value;
+  const note = $('exp-note').value.trim();
+  const account = $('exp-account').value.trim() || 'Cash';
+  const location = $('exp-location').value.trim();
+
+  if (!name || isNaN(amount) || amount <= 0) {
+    showToast(t('toast_fill_name_amount'), 'error'); return;
+  }
+
+  // Validate split before save
+  if (!validateSplit()) {
+    const msg = currentSplitMode === 'ratio' ? t('split_save_err_ratio') : t('split_save_err_amount');
+    showToast('⚠️ ' + msg, 'error'); return;
+  }
+
+  const { splitWith, splitMode, splitAmounts } = getSplitData();
+
+  // Currency conversion — use manual rate input, fallback to trip default, then API
+  let amountBase = amount;
+  const baseCurrency = currentTrip.currency || 'THB';
+  if (currency !== baseCurrency) {
+    if (rateInput && rateInput > 0) {
+      amountBase = amount * rateInput;
+    } else if (currentTrip.defaultRate && currentTrip.defaultRate > 0) {
+      amountBase = amount * currentTrip.defaultRate;
+    } else {
+      try {
+        const rate = await getExchangeRate(currency, baseCurrency);
+        amountBase = amount * rate;
+      } catch(e) { amountBase = amount; }
+    }
+  }
+
+  // Image upload
+  let imageUrl = editingExpenseId ? (allExpenses[editingExpenseId]?.imageUrl || null) : null;
+  if (selectedImgBase64) {
+    try {
+      const ref = storage.ref(`expenses/${currentTrip.id}/${Date.now()}.jpg`);
+      await ref.putString(selectedImgBase64, 'data_url');
+      imageUrl = await ref.getDownloadURL();
+    } catch(e) { console.error('img upload', e); }
+  }
+
+  const data = {
+    name, amount, currency, amountBase, rate: rateInput || null, date, payer, note, account, location,
+    category: selectedCategory, splitWith, splitMode: splitMode || 'equal',
+    splitAmounts: splitAmounts || null,
+    imageUrl: imageUrl || null,
+    createdBy: editingExpenseId ? (allExpenses[editingExpenseId]?.createdBy || currentUser.id) : currentUser.id,
+    updatedBy: currentUser.id,
+    updatedAt: Date.now()
+  };
+
+  const path = `expenses/${currentTrip.id}`;
+  try {
+    if (editingExpenseId) {
+      await db.ref(`${path}/${editingExpenseId}`).update(data);
+      showToast(t('toast_updated'));
+    } else {
+      data.createdAt = Date.now();
+      await db.ref(path).push(data);
+      showToast(t('toast_saved'));
+    }
+    closeExpenseSheet();
+  } catch(e) {
+    console.error('saveExpense failed:', e);
+    showToast(currentLang==='en' ? 'Save failed: '+e.message : 'บันทึกไม่สำเร็จ: '+e.message, 'error');
+  }
+}
+
+async function deleteExpense() {
+  if (!editingExpenseId) return;
+  if (!confirm(t('confirm_delete_exp'))) return;
+  try {
+    await db.ref(`expenses/${currentTrip.id}/${editingExpenseId}`).remove();
+    showToast(t('toast_deleted'));
+    closeExpenseSheet();
+  } catch(e) {
+    showToast(currentLang==='en' ? 'Delete failed: '+e.message : 'ลบไม่สำเร็จ: '+e.message, 'error');
+  }
+}
+
+function closeSheet(name) {
+  $('overlay-'+name)?.classList.remove('show');
+  $('sheet-'+name)?.classList.remove('show');
+}
+function closeExpenseSheet() { closeSheet('expense'); }
+
+function showSheet(name) {
+  $('overlay-'+name)?.classList.add('show');
+  $('sheet-'+name)?.classList.add('show');
+}
+
+// ─────────────────────────────────────────────
+// Expense Detail
+// ─────────────────────────────────────────────
+function openExpenseDetail(exp) {
+  const cat = getCategories().find(c => c.id === exp.category) || getCategories().at(-1);
+  const payer = exp.payer === '__admin__' ? adminDisplayName() : (allUsers[exp.payer]?.name || exp.payer || '?');
+  const splitNames = (exp.splitWith || []).map(uid => uid === '__admin__' ? adminDisplayName() : (allUsers[uid]?.name || uid)).join(', ');
+  $('detail-title').textContent = exp.name;
+  $('detail-body').innerHTML = `
+    ${exp.imageUrl ? `<img src="${exp.imageUrl}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:12px;">` : ''}
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+      <span style="font-size:28px">${cat.label.split(' ')[0]}</span>
+      <div>
+        <div style="font-size:24px;font-weight:700;color:${cat.color}">${formatAmt(exp.amountBase || exp.amount)} ${currentTrip?.currency||'THB'}</div>
+        ${exp.currency !== (currentTrip?.currency||'THB') ? `<div style="font-size:12px;color:var(--text3)">${formatAmt(exp.amount)} ${exp.currency}</div>` : ''}
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--text2);">
+      <div>${t('detail_date')} ${exp.date || '-'}</div>
+      <div>${t('detail_payer')} ${esc(payer)}</div>
+      ${exp.account ? `<div>💳 ${t('detail_account')} ${esc(exp.account)}</div>` : ''}
+      <div>${t('detail_split')} ${esc(splitNames) || '-'}</div>
+      ${exp.updatedBy ? `<div style="font-size:11px;color:var(--text3);margin-top:4px;">
+        ${currentLang==='en'?'Last edited by':'แก้ไขล่าสุดโดย'}: ${esc(exp.updatedBy==='__admin__'?adminDisplayName():(allUsers[exp.updatedBy]?.name||exp.updatedBy))}
+        ${exp.updatedAt ? '· '+new Date(exp.updatedAt).toLocaleDateString(currentLang==='en'?'en-GB':'th-TH',{day:'numeric',month:'short',year:'2-digit'}) : ''}
+      </div>` : ''}
+      ${exp.location ? `<div>${t('detail_location')} ${esc(exp.location)}</div>` : ''}
+      ${exp.note ? `<div>${t('detail_note')} ${esc(exp.note)}</div>` : ''}
+      <div style="margin-top:4px;"><span class="badge badge-yellow">${cat.label}</span></div>
+    </div>`;
+  $('detail-footer').innerHTML = '';
+  const canEdit = isAdmin() || exp.payer === currentUser.id;
+  if (canEdit) {
+    const btn = document.createElement('button');
+    btn.className = 'btn-primary';
+    btn.textContent = t('exp_edit');
+    btn.onclick = () => openEditExpense(exp);
+    $('detail-footer').appendChild(btn);
+  }
+  showSheet('detail');
+}
+function closeDetail() { closeSheet('detail'); }
+
+// ─────────────────────────────────────────────
+// Image Handling
+// ─────────────────────────────────────────────
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    if (file.size > 1024 * 1024) {
+      compressImage(dataUrl, 800, 0.7, compressed => {
+        selectedImgBase64 = compressed;
+        showImgPreview(compressed);
+      });
+    } else {
+      selectedImgBase64 = dataUrl;
+      showImgPreview(dataUrl);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+function compressImage(dataUrl, maxW, quality, cb) {
+  const img = new Image();
+  img.onload = () => {
+    const ratio = Math.min(maxW / img.width, 1);
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width * ratio;
+    canvas.height = img.height * ratio;
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+    cb(canvas.toDataURL('image/jpeg', quality));
+  };
+  img.src = dataUrl;
+}
+function showImgPreview(src) {
+  $('exp-img-preview').src = src;
+  $('exp-img-preview').style.display = 'block';
+  $('exp-img-placeholder').style.display = 'none';
+}
+
+// ─────────────────────────────────────────────
+// Exchange Rate field helpers
+// ─────────────────────────────────────────────
+function updateExpRateField() {
+  const currency = $('exp-currency').value;
+  const baseCurrency = currentTrip?.currency || 'THB';
+  const group = $('exp-rate-group');
+  const hint  = $('exp-rate-label-hint');
+  if (!group) return;
+  if (currency === baseCurrency) {
+    group.style.display = 'none';
+    $('exp-rate').value = 1;
+  } else {
+    group.style.display = 'block';
+    const defaultRate = currentTrip?.defaultRate || '';
+    if (!$('exp-rate').value || $('exp-rate').value === '1') {
+      $('exp-rate').value = defaultRate;
+    }
+    if (hint) hint.textContent = `(1 ${currency} = ? ${baseCurrency}, default: ${defaultRate||t('unspecified')})`;
+  }
+}
+
+// ─────────────────────────────────────────────
+// Account Suggestions
+// ─────────────────────────────────────────────
+function populateAccountSuggestions() {
+  const dl = $('account-suggestions');
+  if (!dl) return;
+  // Collect unique account names from past expenses in current trip
+  const used = new Set();
+  Object.values(allExpenses).forEach(e => {
+    if (e.account) used.add(e.account);
+  });
+  // Always include common defaults
+  // Default suggestions from i18n
+  const defList = currentLang === 'en'
+    ? ['Cash', 'Credit Card', 'Debit Card', 'Bank Transfer', 'Mobile Pay']
+    : ['เงินสด', 'บัตรเครดิต', 'บัตรเดบิต', 'โอนเงิน', 'พร้อมเพย์'];
+  const defaults = defList;
+  defaults.forEach(d => used.add(d));
+  dl.innerHTML = [...used].map(v => `<option value="${v}">`).join('');
+}
+
+// ─────────────────────────────────────────────
+// GPS
+// ─────────────────────────────────────────────
+async function reverseGeocode(lat, lon) {
+  try {
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=th`);
+    const data = await r.json();
+    // ดึงเฉพาะชื่อย่อ: ร้าน/อาคาร, ถนน, เขต
+    const a = data.address || {};
+    const parts = [
+      a.amenity || a.shop || a.tourism || a.building || a.name,
+      a.road || a.pedestrian,
+      a.suburb || a.neighbourhood || a.quarter || a.district,
+    ].filter(Boolean);
+    return parts.length ? parts.join(', ') : data.display_name?.split(',').slice(0,3).join(', ') || `${lat.toFixed(4)},${lon.toFixed(4)}`;
+  } catch(e) {
+    return `${lat.toFixed(4)},${lon.toFixed(4)}`;
+  }
+}
+
+function getGPS() {
+  if (!navigator.geolocation) { showToast(t('gps_not_supported'), 'error'); return; }
+  showToast(t('toast_location'));
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const { latitude: lat, longitude: lon } = pos.coords;
+    const name = await reverseGeocode(lat, lon);
+    window._cachedLocation = name;
+    const el = $('exp-location');
+    if (el) el.value = name;
+    showToast(t('toast_location_ok'));
+  }, (err) => {
+    console.warn('GPS error:', err.message);
+    showToast(t('toast_location_err'), 'error');
+  }, { timeout: 10000, maximumAge: 60000 });
+}
+
+// เรียก GPS เงียบๆ เพื่อ cache ไว้ใช้เป็น default (ไม่แสดง toast)
+function getGPSSilent() {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const { latitude: lat, longitude: lon } = pos.coords;
+    const name = await reverseGeocode(lat, lon);
+    window._cachedLocation = name;
+    // ถ้า field ยังว่างอยู่ ใส่ค่า default ให้เลย
+    const el = $('exp-location');
+    if (el && !el.value) el.value = name;
+  }, () => {}, { timeout: 8000, maximumAge: 120000 });
+}
+
+// ขอ permission location ตั้งแต่ login เพื่อ warm up
+function requestLocationPermission() {
+  if (!navigator.geolocation) return;
+  navigator.permissions?.query({ name: 'geolocation' }).then(result => {
+    if (result.state === 'granted') {
+      // ได้ permission แล้ว ดึงค่าเลย
+      getGPSSilent();
+    } else if (result.state === 'prompt') {
+      // แสดง dialog โดยการ call getCurrentPosition
+      navigator.geolocation.getCurrentPosition(
+        async pos => {
+          const { latitude: lat, longitude: lon } = pos.coords;
+          window._cachedLocation = await reverseGeocode(lat, lon);
+        },
+        () => {},
+        { timeout: 10000 }
+      );
+    }
+    // 'denied' — ไม่ทำอะไร
+  }).catch(() => {
+    // permissions API ไม่รองรับ — ลองตรงๆ เลย
+    getGPSSilent();
+  });
+}
+
+// ─────────────────────────────────────────────
+// Exchange Rate
+// ─────────────────────────────────────────────
+const rateCache = {};
+async function getExchangeRate(from, to) {
+  const key = `${from}_${to}`;
+  if (rateCache[key]) return rateCache[key];
+  const r = await fetch(`https://api.exchangerate-api.com/v4/latest/${from}`);
+  const data = await r.json();
+  const rate = data.rates[to];
+  rateCache[key] = rate;
+  return rate;
+}
+
+// ─────────────────────────────────────────────
+// Bar Chart — Daily Expenses
+// ─────────────────────────────────────────────
+
+function populateBarFilters() {
+  if (!currentTrip) return;
+  const expenses = Object.values(allExpenses);
+  const L = currentLang === 'en';
+
+  // Helper: rebuild <select> preserving previous value
+  function rebuildSel(id, allLabel, opts) {
+    const sel = $(id);
+    if (!sel) return;
+    const prev = sel.value;
+    const valid = new Set(['all', ...opts.map(o => o.v)]);
+    sel.innerHTML = `<option value="all">${allLabel}</option>` +
+      opts.map(o => `<option value="${o.v}">${o.label}</option>`).join('');
+    sel.value = valid.has(prev) ? prev : 'all';
+  }
+
+  rebuildSel('bar-filter-user',
+    L ? '👤 All Members' : '👤 ทุกคน',
+    getTripMembers().map(m => ({v: m.id, label: m.name}))
+  );
+  rebuildSel('bar-filter-cat',
+    L ? '🏷 All Categories' : '🏷 ทุกหมวด',
+    getCategories().map(cat => ({v: cat.id, label: cat.label}))
+  );
+  rebuildSel('bar-filter-account',
+    L ? '💳 All Accounts' : '💳 ทุกบัญชี',
+    [...new Set(expenses.map(e => e.account||'Cash'))].sort().map(a => ({v:a, label:'💳 '+a}))
+  );
+
+  // Stack-by selector labels
+  const stackSel = $('bar-stack-by');
+  if (stackSel) {
+    const prev = stackSel.value;
+    stackSel.innerHTML = [
+      {v:'category', label: L ? '🎨 Stack by Category' : '🎨 แบ่งตามหมวด'},
+      {v:'user',     label: L ? '👤 Stack by Member'   : '👤 แบ่งตามคน'},
+      {v:'account',  label: L ? '💳 Stack by Account'  : '💳 แบ่งตามบัญชี'},
+    ].map(o=>`<option value="${o.v}">${o.label}</option>`).join('');
+    stackSel.value = prev || 'category';
+  }
+}
+
+function renderBarChart() {
+  const canvas  = $('bar-chart-canvas');
+  const legendEl= $('bar-legend');
+  if (!canvas || !currentTrip) return;
+
+  const filterUser    = $('bar-filter-user')?.value    || 'all';
+  const filterCat     = $('bar-filter-cat')?.value     || 'all';
+  const filterAccount = $('bar-filter-account')?.value || 'all';
+  const stackBy       = $('bar-stack-by')?.value       || 'category';
+
+  // ── Filter ──
+  const expenses = Object.values(allExpenses).filter(e => {
+    if (!e.date) return false;
+    if (filterUser    !== 'all' && e.payer              !== filterUser)    return false;
+    if (filterCat     !== 'all' && e.category           !== filterCat)     return false;
+    if (filterAccount !== 'all' && (e.account||'Cash')  !== filterAccount) return false;
+    return true;
+  });
+
+  const ctx = canvas.getContext('2d');
+  const containerW = canvas.parentElement.clientWidth || 320;
+
+  if (!expenses.length) {
+    canvas.width  = containerW; canvas.height = 200;
+    canvas.style.width = containerW+'px'; canvas.style.height = '200px';
+    ctx.clearRect(0,0,containerW,200);
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text3').trim() || '#888';
+    ctx.font = '13px Prompt,sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(currentLang==='en'?'No data':'ไม่มีข้อมูล', containerW/2, 100);
+    if (legendEl) legendEl.innerHTML = '';
+    return;
+  }
+
+  // ── Build stack keys & colors ──
+  let stackKeys = [], stackColors = {}, stackLabels = {};
+  const cats    = getCategories();
+  const members = getTripMembers();
+
+  if (stackBy === 'category') {
+    cats.forEach(cat => {
+      stackKeys.push(cat.id);
+      stackColors[cat.id] = cat.color;
+      stackLabels[cat.id] = cat.label;
+    });
+  } else if (stackBy === 'user') {
+    members.forEach(m => {
+      stackKeys.push(m.id);
+      stackColors[m.id] = m.color || '#4f8ef7';
+      stackLabels[m.id] = m.name;
+    });
+  } else { // account
+    const accounts = [...new Set(expenses.map(e => e.account||'Cash'))];
+    const ACCT_COLORS = ['#4f8ef7','#10b981','#f59e0b','#ec4899','#a855f7','#fb923c','#06b6d4','#f43f5e'];
+    accounts.forEach((acc,i) => {
+      stackKeys.push(acc);
+      stackColors[acc] = ACCT_COLORS[i % ACCT_COLORS.length];
+      stackLabels[acc] = '💳 '+acc;
+    });
+  }
+
+  // ── Group by date → stackKey ──
+  const dateSet = new Set(expenses.map(e => e.date));
+  const dates   = [...dateSet].sort();
+  const dayData = {};
+  dates.forEach(d => { dayData[d] = {}; stackKeys.forEach(k => { dayData[d][k] = 0; }); });
+  expenses.forEach(e => {
+    const key = stackBy === 'category' ? (e.category||'other')
+              : stackBy === 'user'     ? (e.payer||'')
+              : (e.account||'Cash');
+    if (dayData[e.date] && key in dayData[e.date])
+      dayData[e.date][key] += (e.amountBase || e.amount || 0);
+    else if (dayData[e.date])
+      dayData[e.date][key] = (dayData[e.date][key]||0) + (e.amountBase || e.amount || 0);
+  });
+
+  const dayTotals = dates.map(d => Object.values(dayData[d]).reduce((s,v)=>s+v,0));
+  const rawMax    = Math.max(...dayTotals, 1);
+  // ── Auto max: add 18% headroom so total labels don't clip ──
+  const maxTotal  = rawMax * 1.18;
+
+  // ── Canvas sizing ──
+  const DPR     = window.devicePixelRatio || 1;
+  const BAR_W   = 36, BAR_GAP = 14;
+  const PAD_L   = 52, PAD_R = 12, PAD_T = 28, PAD_B = 52;
+  const CHART_H = 220;
+  const minW    = PAD_L + dates.length*(BAR_W+BAR_GAP) + PAD_R;
+  const canvasW = Math.max(minW, containerW);
+
+  canvas.width  = canvasW * DPR;
+  canvas.height = CHART_H * DPR;
+  canvas.style.width  = canvasW + 'px';
+  canvas.style.height = CHART_H + 'px';
+
+  ctx.scale(DPR, DPR);
+  ctx.clearRect(0, 0, canvasW, CHART_H);
+
+  const plotH   = CHART_H - PAD_T - PAD_B;
+  const isDark  = document.documentElement.getAttribute('data-theme') !== 'light';
+  const gridCol = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.07)';
+  const textCol = isDark ? '#9aa5bc' : '#718096';
+  const totCol  = isDark ? '#e8edf5' : '#1a202c';
+
+  // ── Y-axis grid ──
+  ctx.font = '11px Prompt,sans-serif';
+  for (let i = 0; i <= 4; i++) {
+    const y   = PAD_T + plotH - (i/4)*plotH;
+    const val = rawMax * i/4;            // label based on real max, not padded
+    ctx.strokeStyle = gridCol; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(PAD_L-4, y); ctx.lineTo(canvasW-PAD_R, y); ctx.stroke();
+    ctx.fillStyle = textCol; ctx.textAlign = 'right';
+    ctx.fillText(formatAmt(val), PAD_L-7, y+4);
+  }
+
+  // ── Bars ──
+  dates.forEach((date, di) => {
+    const x = PAD_L + di*(BAR_W+BAR_GAP);
+    let yOff = 0;
+    stackKeys.forEach(key => {
+      const val  = dayData[date][key] || 0;
+      if (val <= 0) return;
+      const barH = (val/maxTotal)*plotH;
+      const y    = PAD_T + plotH - yOff - barH;
+      ctx.fillStyle = stackColors[key] || '#9aa5bc';
+
+      const totalBarH = (dayTotals[di]/maxTotal)*plotH;
+      const isTop = (yOff + barH) >= totalBarH - 0.5;
+      if (isTop && barH > 4) {
+        const r = 3;
+        ctx.beginPath();
+        ctx.moveTo(x+r,y); ctx.lineTo(x+BAR_W-r,y);
+        ctx.quadraticCurveTo(x+BAR_W,y,x+BAR_W,y+r);
+        ctx.lineTo(x+BAR_W,y+barH); ctx.lineTo(x,y+barH);
+        ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
+        ctx.closePath(); ctx.fill();
+      } else {
+        ctx.fillRect(x, y, BAR_W, barH);
+      }
+      yOff += barH;
+    });
+
+    // Total label — always fits because of 18% headroom
+    const barTop = PAD_T + plotH - (dayTotals[di]/maxTotal)*plotH;
+    ctx.font = 'bold 10px Prompt,sans-serif';
+    ctx.textAlign = 'center'; ctx.fillStyle = totCol;
+    ctx.fillText(formatAmt(dayTotals[di]), x+BAR_W/2, barTop-5);
+
+    // X-axis label
+    ctx.font = '10px Prompt,sans-serif'; ctx.fillStyle = textCol;
+    const mNames = t('month_names');
+    const d = new Date(date);
+    ctx.save();
+    ctx.translate(x+BAR_W/2, CHART_H-PAD_B+14);
+    ctx.rotate(-Math.PI/5);
+    ctx.fillText(`${d.getDate()}/${mNames[d.getMonth()]}`, 0, 0);
+    ctx.restore();
+  });
+
+  // ── Legend: only keys that have data ──
+  if (legendEl) {
+    const usedKeys = stackKeys.filter(k => dates.some(d => (dayData[d][k]||0) > 0));
+    legendEl.innerHTML = usedKeys.map(k =>
+      `<div class="bar-legend-item">
+        <div class="bar-legend-dot" style="background:${stackColors[k]}"></div>
+        <span>${stackLabels[k]}</span>
+      </div>`
+    ).join('');
+  }
+}
+
+// ─────────────────────────────────────────────
+// Calendar
+// ─────────────────────────────────────────────
+function initCal() {
+  const now = new Date();
+  calYear = now.getFullYear();
+  calMonth = now.getMonth();
+}
+function calPrevMonth() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); }
+function calNextMonth() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); }
+
+function renderCalendar() {
+  if (!currentTrip) return;
+  const mNames = t('cal_months');
+  const calYrDisplay = currentLang==='th' ? calYear+543 : calYear;
+  $('cal-month-label').textContent = `${mNames[calMonth]} ${calYrDisplay}`;
+
+  // Build expense totals per day
+  const dayTotals = {};
+  Object.values(allExpenses).forEach(e => {
+    if (!e.date) return;
+    const d = new Date(e.date);
+    if (d.getFullYear() === calYear && d.getMonth() === calMonth) {
+      const key = d.getDate();
+      dayTotals[key] = (dayTotals[key] || 0) + (e.amountBase || e.amount || 0);
+    }
+  });
+  const maxTotal = Math.max(...Object.values(dayTotals), 1);
+
+  const grid = $('cal-grid');
+  grid.innerHTML = '';
+  t('cal_dows').forEach(d => {
+    const dEl = document.createElement('div');
+    dEl.className = 'cal-dow';
+    dEl.textContent = d;
+    grid.appendChild(dEl);
+  });
+
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const today = new Date();
+
+  for (let i = 0; i < firstDay; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'cal-cell empty';
+    grid.appendChild(empty);
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell';
+    const isToday = today.getFullYear()===calYear && today.getMonth()===calMonth && today.getDate()===d;
+    if (isToday) cell.classList.add('today');
+
+    const total = dayTotals[d] || 0;
+    if (total > 0) {
+      const intensity = Math.max(0.15, total / maxTotal);
+      const heatEl = document.createElement('div');
+      heatEl.className = 'heat';
+      heatEl.style.background = `rgba(79,142,247,${intensity})`;
+      cell.appendChild(heatEl);
+    }
+    const num = document.createElement('span');
+    num.className = 'day-num';
+    num.textContent = d;
+    cell.appendChild(num);
+
+    if (total > 0) {
+      cell.onclick = () => showCalDayExpenses(calYear, calMonth, d);
+    }
+    grid.appendChild(cell);
+  }
+  $('cal-events').innerHTML = '';
+}
+
+function showCalDayExpenses(year, month, day) {
+  const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  const exps = Object.values(allExpenses).filter(e => e.date === dateStr);
+  const container = $('cal-events');
+  const label = `${day} ${t('month_names')[month]}`;
+  if (!exps.length) { container.innerHTML = `<div class="empty-state" style="padding:20px"><p>${t('cal_no_exp')}</p></div>`; return; }
+  container.innerHTML = `<div class="cal-events-title">📅 ${label}</div>`;
+  exps.forEach(e => {
+    const cat = getCategories().find(c => c.id === e.category) || getCategories().at(-1);
+    const div = document.createElement('div');
+    div.className = 'expense-card';
+    div.innerHTML = `
+      <div class="expense-cat-icon" style="background:${cat.color}22">${cat.label.split(' ')[0]}</div>
+      <div class="expense-info">
+        <div class="expense-name">${esc(e.name)}</div>
+        <div class="expense-meta">${allUsers[e.payer]?.name || e.payer || '?'}</div>
+      </div>
+      <div class="expense-amount">
+        <div class="amt" style="color:${cat.color}">${formatAmt(e.amountBase||e.amount)}</div>
+        <div class="currency">${currentTrip?.currency||'THB'}</div>
+      </div>`;
+    div.onclick = () => openExpenseDetail({ ...e });
+    container.appendChild(div);
+  });
+}
+
+// ─────────────────────────────────────────────
+// Summary
+// ─────────────────────────────────────────────
+function renderSummary() {
+  if (!currentTrip) return;
+  populateBarFilters();
+  renderBarChart();
+
+  // Update display-currency dropdown options
+  const dispSel = $('sum-display-currency');
+  if (dispSel) {
+    const baseCur = currentTrip.currency || 'THB';
+    const L = currentLang === 'en';
+    const hasTHB = baseCur !== 'THB';
+    dispSel.innerHTML =
+      `<option value="base">${L?'Base':'สกุลหลัก'}: ${baseCur}</option>` +
+      (hasTHB ? '<option value="THB">THB</option>' : '');
+  }
+  const displayCurrency = (dispSel?.value === 'THB') ? 'THB' : (currentTrip.currency || 'THB');
+  const tripRate = parseFloat(currentTrip.defaultRate) || 1;
+
+  // Convert a single expense's amountBase → displayCurrency
+  function toDisplay(e) {
+    const base = e.amountBase || e.amount || 0;
+    const baseCur = currentTrip.currency || 'THB';
+    if (displayCurrency === 'THB' && baseCur !== 'THB') {
+      return base * tripRate; // base is in baseCur, multiply to get THB
+    }
+    return base; // already in displayCurrency
+  }
+
+  const expenses = Object.values(allExpenses);
+  const total = expenses.reduce((s, e) => s + toDisplay(e), 0);
+  const budget = parseFloat(currentTrip.budget) || 0;
+  const pct = budget > 0 ? Math.min(100, (total/budget)*100) : 0;
+  const pctColor = pct < 60 ? 'var(--green)' : pct < 85 ? 'var(--yellow)' : 'var(--red)';
+
+  $('stat-cards').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-label">${t('sum_total')}</div>
+      <div class="stat-value" style="color:var(--accent)">${formatAmt(total)}</div>
+      <div class="stat-sub">${displayCurrency}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">${t('sum_budget')}</div>
+      <div class="stat-value">${budget > 0 ? formatAmt(budget) : '-'}</div>
+      ${budget > 0 ? `<div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%;background:${pctColor}"></div></div><div class="stat-sub">${pct.toFixed(0)}${t('budget_used')}</div>` : ''}
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">${t('sum_count')}</div>
+      <div class="stat-value">${expenses.length}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">${t('sum_members')}</div>
+      <div class="stat-value">${(currentTrip.members || []).length}</div>
+    </div>`;
+
+  // Pie chart by category
+  const catTotals = {};
+  expenses.forEach(e => {
+    const c = e.category || 'other';
+    catTotals[c] = (catTotals[c] || 0) + (e.amountBase || e.amount || 0);
+  });
+  drawPie(catTotals, total);
+
+  // Balance
+  const members = getTripMembers();
+  const paid = {}; const share = {};
+  members.forEach(m => { paid[m.id] = 0; share[m.id] = 0; });
+  expenses.forEach(e => {
+    const amt = e.amountBase || e.amount || 0;
+    if (e.payer && paid[e.payer] !== undefined) paid[e.payer] += amt;
+    const sp = e.splitWith || members.map(m => m.id);
+    if (e.splitAmounts && e.splitMode !== 'equal') {
+      // custom split — use stored amounts per person
+      sp.forEach(uid => {
+        if (share[uid] !== undefined) share[uid] += (e.splitAmounts[uid] || 0);
+      });
+    } else {
+      const perHead = sp.length > 0 ? amt / sp.length : 0;
+      sp.forEach(uid => { if (share[uid] !== undefined) share[uid] += perHead; });
+    }
+  });
+
+  const balanceContainer = $('balance-list');
+  balanceContainer.innerHTML = '';
+  members.forEach(m => {
+    const bal = (paid[m.id] || 0) - (share[m.id] || 0);
+    const div = document.createElement('div');
+    div.className = 'balance-item';
+    div.innerHTML = `
+      <div class="balance-avatar" style="background:${m.color||'var(--accent)'}22;color:${m.color||'var(--accent)'}">${esc(m.name[0])}</div>
+      <div><div class="balance-name">${esc(m.name)}</div><div style="font-size:12px;color:var(--text3)">${t('sum_paid')} ${formatAmt(paid[m.id]||0)} · ${t('sum_share')} ${formatAmt(share[m.id]||0)} ${displayCurrency}</div></div>
+      <div class="balance-amount ${bal >= 0 ? 'positive' : 'negative'}">${bal >= 0 ? '+' : ''}${formatAmt(bal)}</div>`;
+    balanceContainer.appendChild(div);
+  });
+
+  // Settlement
+  const settlements = calcSettlements(members, paid, share);
+  const settleEl = $('settlement-list');
+  settleEl.innerHTML = '';
+  if (!settlements.length) {
+    settleEl.innerHTML = `<div class="settlement-item">🎉 ${t('sum_settle_done')}</div>`;
+  } else {
+    settlements.forEach(s => {
+      const div = document.createElement('div');
+      div.className = 'settlement-item';
+      div.innerHTML = `<span style="color:var(--red);font-weight:600">${s.from}</span> ${t('settle_arrow')} <span style="color:var(--green);font-weight:600">${s.to}</span> <span style="flex:1;text-align:right;font-weight:700">${formatAmt(s.amount)} ${currentTrip.currency||'THB'}</span>`;
+      settleEl.appendChild(div);
+    });
+  }
+}
+
+function calcSettlements(members, paid, share) {
+  const balances = members.map(m => ({ id: m.id, name: m.name, bal: (paid[m.id]||0) - (share[m.id]||0) }));
+  const debtors = balances.filter(b => b.bal < -0.01).sort((a,b) => a.bal - b.bal);
+  const creditors = balances.filter(b => b.bal > 0.01).sort((a,b) => b.bal - a.bal);
+  const result = [];
+  let i = 0, j = 0;
+  const d = debtors.map(x => ({ ...x }));
+  const c = creditors.map(x => ({ ...x }));
+  while (i < d.length && j < c.length) {
+    const amt = Math.min(-d[i].bal, c[j].bal);
+    result.push({ from: d[i].name, to: c[j].name, amount: amt });
+    d[i].bal += amt; c[j].bal -= amt;
+    if (Math.abs(d[i].bal) < 0.01) i++;
+    if (Math.abs(c[j].bal) < 0.01) j++;
+  }
+  return result;
+}
+
+function drawPie(catTotals, total) {
+  const canvas = $('pie-canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, 220, 220);
+  if (total <= 0) { ctx.fillStyle = '#1e2a3e'; ctx.beginPath(); ctx.arc(110,110,90,0,Math.PI*2); ctx.fill(); return; }
+
+  const cx = 110, cy = 110, r = 90, r2 = 50;
+  let start = -Math.PI / 2;
+  const entries = Object.entries(catTotals).sort((a,b) => b[1]-a[1]);
+  entries.forEach(([catId, val]) => {
+    const cat = getCategories().find(c => c.id === catId);
+    const angle = (val / total) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, start + angle);
+    ctx.closePath();
+    ctx.fillStyle = cat?.color || '#9aa5bc';
+    ctx.fill();
+    start += angle;
+  });
+  // Donut hole
+  ctx.beginPath();
+  ctx.arc(cx, cy, r2, 0, Math.PI*2);
+  ctx.fillStyle = '#0a0e1a';
+  ctx.fill();
+
+  // Legend
+  const legend = $('pie-legend');
+  legend.innerHTML = '';
+  entries.forEach(([catId, val]) => {
+    const cat = getCategories().find(c => c.id === catId);
+    const pct = ((val/total)*100).toFixed(1);
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.innerHTML = `<div class="legend-dot" style="background:${cat?.color||'#9aa5bc'}"></div><div class="legend-label">${cat?.label||catId}</div><div class="legend-pct" style="color:${cat?.color||'#9aa5bc'}">${pct}%</div><div style="font-size:12px;color:var(--text3);margin-left:4px">(${formatAmt(val)})</div>`;
+    legend.appendChild(item);
+  });
+}
+
+// ─────────────────────────────────────────────
+// Notes
+// ─────────────────────────────────────────────
+let notesData = {};
+
+function subscribeNotes(tripId) {
+  if (window._notesListener) {
+    db.ref(`notes/${window._notesListenerTrip}`).off('value', window._notesListener);
+  }
+  window._notesListenerTrip = tripId;
+  window._notesListener = db.ref(`notes/${tripId}`).on('value', snap => {
+    notesData = snap.val() || {};
+    if (currentTab === 'notes') renderNotes();
+  });
+}
+
+function renderNotes() {
+  const container = $('notes-sections');
+  container.innerHTML = '';
+  NOTES_SECTIONS.forEach(sec => {
+    const div = document.createElement('div');
+    div.className = 'notes-section';
+    div.innerHTML = `
+      <div class="notes-section-header" onclick="toggleNotesSection(this)">
+        <span class="notes-section-icon">${sec.icon}</span>
+        <span class="notes-section-title">${t(sec.key)}</span>
+        <span class="notes-toggle">▾</span>
+      </div>
+      <div class="notes-body">
+        ${isAdmin()
+          ? `<textarea class="notes-textarea" data-sec="${sec.id}" onblur="saveNote('${sec.id}',this.value)" placeholder="${t('note_ph')}">${notesData[sec.id] || ''}</textarea>`
+          : `<div class="notes-read">${notesData[sec.id] || `<span style="color:var(--text3)">${t('no_data')}</span>`}</div>`
+        }
+      </div>`;
+    container.appendChild(div);
+    // Open first by default if has content
+    if (notesData[sec.id]) div.classList.add('open');
+  });
+}
+
+function toggleNotesSection(headerEl) {
+  headerEl.parentElement.classList.toggle('open');
+}
+
+async function saveNote(secId, value) {
+  if (!currentTrip) return;
+  try {
+    await db.ref(`notes/${currentTrip.id}/${secId}`).set(value);
+  } catch(e) {
+    console.error('saveNote failed:', e);
+    showToast(currentLang==='en' ? 'Save failed — check permissions' : 'บันทึกไม่สำเร็จ — ตรวจสอบสิทธิ์', 'error');
+  }
+}
+
+// ─────────────────────────────────────────────
+// Admin: Users
+// ─────────────────────────────────────────────
+function openAdminModal() {
+  closeTripSelector();
+  $('add-user-form').style.display = 'none';
+  // Manage Users — admin only
+  const adminSections = $('admin-only-sections');
+  if (adminSections) adminSections.style.display = currentUser?.isAdmin ? 'block' : 'none';
+  // Manage Trips — all users
+  const tripsSection = $('trips-section');
+  if (tripsSection) tripsSection.style.display = 'block';
+  // Title
+  const titleEl = $('admin-modal-title');
+  if (titleEl) titleEl.textContent = currentUser?.isAdmin ? t('admin_title') : t('settings_title');
+  $('modal-admin').classList.add('show');
+  // Always render trips (all users can see/edit trips)
+  renderAdminTripList();
+  // Render user list only for admin
+  if (currentUser?.isAdmin) renderAdminUserList();
+}
+function closeAdminModal() {
+  $('modal-admin').classList.remove('show');
+}
+
+function renderAdminUserList() {
+  const container = $('user-list-admin');
+  if (!container) return;
+  container.innerHTML = '';
+  if (!Object.keys(allUsers).length) {
+    container.innerHTML = `<div style="color:var(--text3);font-size:13px;padding:12px 0;">${t('no_users')}</div>`;
+    return;
+  }
+  Object.entries(allUsers).forEach(([uid, u]) => {
+    const tripNames = (u.trips||[]).map(tid => allTrips[tid]?.name||tid).join(', ') || (currentLang==='en'?'None':'ไม่มี');
+    const div = document.createElement('div');
+    div.className = 'expense-card';
+    div.style.cssText = 'margin-bottom:8px;cursor:default;';
+    div.innerHTML = `
+      <div class="balance-avatar" style="background:${u.color||'var(--accent)'}22;color:${u.color||'var(--accent)'};font-size:18px;">${esc(u.name[0])}</div>
+      <div class="expense-info">
+        <div class="expense-name">${esc(u.name)}</div>
+        <div class="expense-meta">🔑 <span class="pin-mask" onclick="this.textContent=this.dataset.pin" data-pin="${esc(u.pin)}" style="cursor:pointer;letter-spacing:2px;" title="tap to reveal">••••</span> · 🗺️ ${esc(tripNames)}${u.email ? ' · 🔗 '+esc(u.email) : ''}</div>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button class="icon-btn" onclick="openEditUserTrips('${uid}')" style="font-size:14px;">✏️</button>
+        <button class="icon-btn" onclick="deleteUser('${uid}')" style="color:var(--red);font-size:14px;">🗑</button>
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+function openEditUserTrips(uid) {
+  const u = allUsers[uid];
+  if (!u) return;
+  // Build inline edit form
+  const existing = $(`edit-user-trips-${uid}`);
+  if (existing) { existing.remove(); return; }
+  const form = document.createElement('div');
+  form.id = `edit-user-trips-${uid}`;
+  form.style.cssText = 'background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:12px;margin-bottom:8px;';
+  form.innerHTML = `<div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text2)">${currentLang==='en'?'Edit':'แก้ไข'} ${esc(u.name)}</div>
+    <div class="form-group" style="margin-bottom:8px;">
+      <label class="form-label" style="font-size:11px;">Email (Google login)</label>
+      <input type="email" id="edit-user-email-${uid}" class="form-input" placeholder="name@gmail.com" value="${esc(u.email||'')}">
+    </div>
+    <div class="checkbox-list" style="gap:6px;">
+      ${Object.entries(allTrips).map(([tid,t]) => `
+        <label class="checkbox-item" style="padding:8px;">
+          <input type="checkbox" value="${tid}" ${(u.trips||[]).includes(tid)?'checked':''}>
+          <span class="checkbox-label">${esc(t.name)}</span>
+        </label>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button class="btn-outline" style="padding:8px 14px;font-size:13px;" onclick="$('edit-user-trips-${uid}').remove()">ยกเลิก</button>
+      <button class="btn-primary" style="padding:8px 14px;font-size:13px;" onclick="saveUserTrips('${uid}')">บันทึก</button>
+    </div>`;
+  // Insert after user row
+  const container = $('user-list-admin');
+  const rows = container.querySelectorAll('.expense-card');
+  const idx = Array.from(container.children).findIndex(el => el.querySelector(`[onclick*="${uid}"]`));
+  if (idx >= 0 && container.children[idx+1]) {
+    container.insertBefore(form, container.children[idx+1]);
+  } else {
+    container.appendChild(form);
+  }
+}
+
+async function saveUserTrips(uid) {
+  const form = $(`edit-user-trips-${uid}`);
+  if (!form) return;
+  const trips = Array.from(form.querySelectorAll('input[type="checkbox"]:checked')).map(c => c.value);
+  const email = ($(`edit-user-email-${uid}`)?.value || '').trim().toLowerCase();
+  try {
+    await db.ref(`users/${uid}`).update({ trips, email: email || null });
+    showToast(t('toast_user_trips_updated'));
+    form.remove();
+  } catch(e) {
+    console.error('saveUserTrips failed:', e);
+    showToast(currentLang==='en' ? 'Save failed: '+e.message : 'บันทึกไม่สำเร็จ: '+e.message, 'error');
+  }
+}
+
+function openAddUserForm() {
+  $('add-user-form').style.display = 'block';
+  $('new-user-name').value = '';
+  $('new-user-pin').value = '';
+  $('new-user-email').value = '';
+  // Avatar color picker
+  const picker = $('avatar-color-picker');
+  picker.innerHTML = '';
+  AVATAR_COLORS.forEach((col, i) => {
+    const d = document.createElement('div');
+    d.className = 'av-color' + (i === 0 ? ' selected' : '');
+    d.style.background = col;
+    d.onclick = () => { $$('.av-color').forEach(x=>x.classList.remove('selected')); d.classList.add('selected'); };
+    picker.appendChild(d);
+  });
+  // Trip checkboxes
+  const tripWrap = $('new-user-trips');
+  tripWrap.innerHTML = '';
+  Object.entries(allTrips).forEach(([tid, t]) => {
+    const label = document.createElement('label');
+    label.className = 'checkbox-item';
+    label.innerHTML = `<input type="checkbox" value="${tid}"><span class="checkbox-label">${esc(t.name)}</span>`;
+    tripWrap.appendChild(label);
+  });
+}
+
+async function saveNewUser() {
+  const name = $('new-user-name').value.trim();
+  const pin = $('new-user-pin').value;
+  const email = $('new-user-email').value.trim().toLowerCase();
+  if (!name || pin.length !== 4) { showToast(t('toast_fill_name_pin'), 'error'); return; }
+  const color = document.querySelector('.av-color.selected')?.style.background || '#4f8ef7';
+  const trips = Array.from($$('#new-user-trips input:checked')).map(c => c.value);
+  const id = 'user_' + Date.now();
+  try {
+    await db.ref(`users/${id}`).set({ id, name, pin, color, trips, email: email || null });
+    showToast(t('toast_user_saved')+' '+name+' ✓');
+    $('add-user-form').style.display = 'none';
+  } catch(e) {
+    console.error('saveNewUser failed:', e);
+    showToast(currentLang==='en' ? 'Save failed: '+e.message : 'บันทึกไม่สำเร็จ: '+e.message, 'error');
+  }
+}
+
+async function deleteUser(uid) {
+  if (!confirm(t('confirm_delete_user'))) return;
+  try {
+    await db.ref(`users/${uid}`).remove();
+    showToast(t('toast_deleted'));
+  } catch(e) {
+    showToast(currentLang==='en' ? 'Delete failed: '+e.message : 'ลบไม่สำเร็จ: '+e.message, 'error');
+  }
+}
+
+// ─────────────────────────────────────────────
+// Admin: Trips
+// ─────────────────────────────────────────────
+function renderAdminTripList() {
+  const container = $('trip-admin-list');
+  if (!container) return;
+  container.innerHTML = '';
+  const trips = Object.entries(allTrips);
+  if (!trips.length) {
+    container.innerHTML = `<div style="color:var(--text3);font-size:13px;padding:8px 0;">${t('no_trips_admin')}</div>`;
+    return;
+  }
+  trips.forEach(([tid, tr]) => {
+    const div = document.createElement('div');
+    div.className = 'trip-card';
+    div.style.marginBottom = '8px';
+    div.innerHTML = `
+      <div class="trip-card-header">
+        <div style="flex:1;min-width:0;">
+          <div class="trip-card-name">${esc(tr.name)}</div>
+          <div class="trip-card-dates">${t.startDate||'—'} – ${t.endDate||'—'} · ${t.currency||'THB'}</div>
+        </div>
+        <span class="trip-code" onclick="copyTripCode('${t.code||''}',event)" style="cursor:pointer;">${t.code||'------'} 📋</span>
+      </div>
+      <div class="member-chips" style="margin:6px 0 8px;">${getTripMemberChips(t)}</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-outline" style="padding:6px 12px;font-size:12px;" onclick="openEditTrip('${tid}')">✏️ ${currentLang==='en'?'Edit':'แก้ไข'}</button>
+        ${currentUser?.isAdmin ? `<button class="btn-outline" style="padding:6px 12px;font-size:12px;color:var(--red);border-color:var(--red);" onclick="deleteTrip('${tid}')">🗑 ${currentLang==='en'?'Delete':'ลบ'}</button>` : ''}
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+function openNewTripModal() {
+  editingTripId = null;
+  $('trip-form-title').textContent = t('trip_form_new');
+  $('trip-name-input').value = '';
+  $('trip-start').value = '';
+  $('trip-end').value = '';
+  $('trip-budget').value = '';
+  $('trip-currency').value = 'THB';
+  $('trip-default-rate').value = '';
+  updateTripRateHint('THB');
+  renderTripMemberList(null);
+  // close other sheets if open
+  closeTripSelector();
+  $('modal-trip-form').classList.add('show');
+}
+
+function openEditTrip(tid) {
+  editingTripId = tid;
+  const tr = allTrips[tid];
+  $('trip-form-title').textContent = t('trip_form_edit');
+  $('trip-name-input').value = tr.name || '';
+  $('trip-start').value = tr.startDate || '';
+  $('trip-end').value = tr.endDate || '';
+  $('trip-budget').value = tr.budget || '';
+  $('trip-currency').value = tr.currency || 'THB';
+  $('trip-default-rate').value = tr.defaultRate || '';
+  updateTripRateHint(tr.currency || 'THB');
+  renderTripMemberList(tr.members || []);
+  $('modal-trip-form').classList.add('show');
+}
+
+function renderTripMemberList(selectedMembers) {
+  const container = $('trip-member-list');
+  container.innerHTML = '';
+  // Admin first
+  const adminLabel = document.createElement('label');
+  adminLabel.className = 'checkbox-item';
+  const adminChecked = !selectedMembers || selectedMembers.includes('__admin__');
+  adminLabel.innerHTML = `<input type="checkbox" value="__admin__" ${adminChecked ? 'checked' : ''}><span class="checkbox-label" style="color:#f59e0b">👑 Admin</span>`;
+  container.appendChild(adminLabel);
+  // Other users
+  Object.entries(allUsers).forEach(([uid, u]) => {
+    const checked = selectedMembers ? selectedMembers.includes(uid) : false;
+    const label = document.createElement('label');
+    label.className = 'checkbox-item';
+    label.innerHTML = `<input type="checkbox" value="${uid}" ${checked ? 'checked' : ''}><span class="checkbox-label" style="color:${u.color||'var(--text)'}">${esc(u.name)}</span>`;
+    container.appendChild(label);
+  });
+  if (!Object.keys(allUsers).length) {
+    const note = document.createElement('div');
+    note.style.cssText = 'color:var(--text3);font-size:12px;padding:8px;';
+    note.textContent = t('member_no_access');
+    container.appendChild(note);
+  }
+}
+
+function updateTripRateHint(currency) {
+  const hint = $('trip-rate-hint');
+  if (!hint) return;
+  const cur = currency || $('trip-currency').value || 'THB';
+  if (cur === 'THB') {
+    hint.textContent = currentLang==='en'
+      ? 'Base is THB → enter 1 (or leave blank)'
+      : 'สกุลหลักเป็น THB → ใส่ 1 หรือเว้นว่างไว้';
+  } else {
+    hint.textContent = currentLang==='en'
+      ? `How many THB per 1 ${cur}? (e.g. 1 USD ≈ 35 THB)`
+      : `1 ${cur} = ? บาท (เช่น 1 USD ≈ 35 บาท)`;
+  }
+}
+
+async function saveTripForm() {
+  const name = $('trip-name-input').value.trim();
+  if (!name) { showToast(t('toast_fill_trip_name'), 'error'); return; }
+  const members = Array.from($$('#trip-member-list input:checked')).map(c => c.value);
+  const data = {
+    name,
+    startDate: $('trip-start').value,
+    endDate: $('trip-end').value,
+    currency: $('trip-currency').value,
+    budget: parseFloat($('trip-budget').value) || 0,
+    defaultRate: parseFloat($('trip-default-rate').value) || 1,
+    members,
+    code: editingTripId ? (allTrips[editingTripId]?.code || genCode()) : genCode(),
+    updatedAt: Date.now(),
+  };
+
+  let tripId = editingTripId;
+  try {
+    if (editingTripId) {
+      await db.ref(`trips/${editingTripId}`).update(data);
+      showToast(t('toast_trip_updated'));
+    } else {
+      data.createdAt = Date.now();
+      const ref = await db.ref('trips').push(data);
+      tripId = ref.key;
+      showToast(t('toast_trip_saved'));
+    }
+    // Sync users/{uid}/trips
+    for (const [uid, user] of Object.entries(allUsers)) {
+      const shouldHave = members.includes(uid);
+      const curTrips = user.trips || [];
+      if (shouldHave && !curTrips.includes(tripId))
+        await db.ref(`users/${uid}/trips`).set([...curTrips, tripId]);
+      else if (!shouldHave && curTrips.includes(tripId))
+        await db.ref(`users/${uid}/trips`).set(curTrips.filter(t => t !== tripId));
+    }
+    $('modal-trip-form').classList.remove('show');
+  } catch(e) {
+    console.error('saveTripForm failed:', e);
+    showToast(currentLang==='en' ? 'Save failed: '+e.message : 'บันทึกไม่สำเร็จ: '+e.message, 'error');
+  }
+}
+
+async function deleteTrip(tid) {
+  if (!confirm(t('confirm_delete_trip'))) return;
+  try {
+    await db.ref(`trips/${tid}`).remove();
+    await db.ref(`expenses/${tid}`).remove();
+    await db.ref(`notes/${tid}`).remove();
+    if (currentTrip?.id === tid) setCurrentTrip(null);
+    showToast(t('toast_trip_deleted'));
+  } catch(e) {
+    console.error('deleteTrip failed:', e);
+    showToast(currentLang==='en' ? 'Delete failed: '+e.message : 'ลบไม่สำเร็จ: '+e.message, 'error');
+  }
+}
+
+function genCode() {
+  return Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+
+// ─────────────────────────────────────────────
+// Export CSV
+// ─────────────────────────────────────────────
+function exportCSV() {
+  if (!currentTrip) { showToast(t('toast_select_trip'), 'error'); return; }
+  const headers = currentLang === 'en'
+    ? ['Date','Name','Category','Amount','Currency','Amount(base)','Paid by','Account','Split with','Location','Note','Last edited by']
+    : ['วันที่','ชื่อ','หมวด','จำนวน','สกุลเงิน','ยอด(base)','ผู้จ่าย','บัญชี','หารกับ','สถานที่','หมายเหตุ','แก้ไขล่าสุดโดย'];
+  const rows = Object.values(allExpenses).map(e => [
+    e.date, e.name,
+    getCategories().find(cat=>cat.id===e.category)?.label || e.category,
+    e.amount, e.currency, e.amountBase||e.amount,
+    e.payer === '__admin__' ? adminDisplayName() : (allUsers[e.payer]?.name||e.payer),
+    e.account || (currentLang==='en'?'Cash':'เงินสด'),
+    (e.splitWith||[]).map(uid => uid==='__admin__'?adminDisplayName():(allUsers[uid]?.name||uid)).join(';'),
+    e.location, e.note,
+    e.updatedBy ? (e.updatedBy==='__admin__'?adminDisplayName():(allUsers[e.updatedBy]?.name||e.updatedBy)) : ''
+  ]);
+  // Guard against CSV formula injection: prefix risky leading chars with '
+  const csvCell = v => {
+    let s = String(v == null ? '' : v);
+    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+    return '"' + s.replace(/"/g, '""') + '"';
+  };
+  const csv = [headers, ...rows].map(r => r.map(csvCell).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `${String(currentTrip.name).replace(/[^a-zA-Z0-9ก-๙_-]/g,'_')}_expenses.csv`; a.click();
+  URL.revokeObjectURL(url);
+  showToast(t('toast_export'));
+}
+
+// ─────────────────────────────────────────────
+// Toast
+// ─────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const container = $('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  container.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// ─────────────────────────────────────────────
+// Theme System
+// ─────────────────────────────────────────────
+let currentTheme = localStorage.getItem('ts_theme') || 'dark';
+
+function setTheme(theme) {
+  currentTheme = theme;
+  localStorage.setItem('ts_theme', theme);
+  applyTheme();
+}
+
+function applyTheme() {
+  const isLight = currentTheme === 'light';
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  // Toggle button state
+  const toggle = $('theme-toggle');
+  const badge  = $('theme-badge');
+  const icon   = $('theme-icon');
+  const label  = $('admin-theme-label');
+  const sub    = $('admin-theme-sub');
+  if (toggle) toggle.checked = isLight;
+  if (icon)  icon.textContent  = isLight ? '☀️' : '🌙';
+  if (badge) badge.textContent = isLight
+    ? (currentLang === 'th' ? 'สว่าง' : 'Light')
+    : (currentLang === 'th' ? 'มืด'   : 'Dark');
+  if (label) label.textContent = isLight
+    ? (currentLang === 'th' ? 'โหมดสว่าง' : 'Light Mode')
+    : (currentLang === 'th' ? 'โหมดมืด'  : 'Dark Mode');
+  if (sub) sub.textContent = currentLang === 'th' ? 'มืด / สว่าง' : 'Dark / Light';
+  // Section title
+  const sec = $('admin-theme-section');
+  if (sec) sec.textContent = currentLang === 'th' ? '🎨 ธีม' : '🎨 Theme';
+  // Redraw bar chart with new theme colors
+  if (currentTrip && currentTab === 'summary') renderBarChart();
+}
+
+// ─────────────────────────────────────────────
+// i18n — Language System
+// ─────────────────────────────────────────────
+let currentLang = localStorage.getItem('ts_lang') || 'en';
+
+const I18N = {
+  th: {
+    // Login
+    login_user: 'ผู้ใช้งาน', login_pin: 'PIN', login_btn: 'เข้าสู่ระบบ',
+    login_or: 'หรือ', login_google: 'เข้าสู่ระบบด้วย Google',
+    user_email_label: 'Email (Google login)', user_email_ph: 'name@gmail.com',
+    login_sub: 'บันทึกรายจ่ายทริปกลุ่ม',
+    // Nav
+    nav_expenses: 'รายจ่าย', nav_calendar: 'ปฏิทิน', nav_summary: 'สรุป', nav_notes: 'โน้ต',
+    // Expense sheet
+    exp_title_add: 'เพิ่มรายจ่าย', exp_title_edit: 'แก้ไขรายจ่าย',
+    exp_name: 'ชื่อรายการ', exp_name_ph: 'เช่น อาหารเย็น, ที่พัก...',
+    exp_amount: 'จำนวนเงิน', exp_currency: 'สกุลเงิน',
+    exp_category: 'หมวดหมู่', exp_date: 'วันที่', exp_payer: 'ผู้จ่าย',
+    exp_split: 'หารกับ', exp_location: '📍 ตำแหน่ง', exp_location_ph: 'ชื่อสถานที่...',
+    exp_note: 'หมายเหตุ', exp_note_ph: 'หมายเหตุ...',
+    exp_account: '💳 บัญชีที่ใช้จ่าย', exp_account_ph: 'เงินสด',
+    detail_account: 'บัญชี:',
+    exp_image: 'รูปภาพ', exp_image_ph: 'แตะเพื่อเลือกรูป',
+    exp_save: '💾 บันทึก', exp_delete: 'ลบ', exp_edit: '✏️ แก้ไข',
+    // Split modes
+    split_equal: '⚖️ เท่ากัน', split_ratio: '📊 สัดส่วน %', split_amount: '💰 ระบุยอด',
+    split_ok_ratio: '✓ รวมครบ 100%', split_ok_amount: '✓ ยอดตรง',
+    split_err_ratio: '⚠️ รวมได้', split_err_amount: '⚠️ ต้องรวมได้',
+    split_err_no_amount: '⚠️ ใส่ยอดรวมก่อน',
+    split_save_err_ratio: 'สัดส่วนต้องรวมได้ 100%',
+    split_save_err_amount: 'ยอดที่ระบุต้องรวมให้ตรงกับยอดรวม',
+    // Trip selector
+    trip_select_title: 'เลือก Trip', trip_new_btn: '+ สร้าง Trip ใหม่',
+    trip_no_trip: 'ยังไม่มี Trip', trip_no_trip_sub: 'Admin สามารถสร้าง Trip ได้',
+    // Admin
+    admin_title: '⚙️ Admin Panel',
+    settings_title: '⚙️ ตั้งค่า', admin_users: '👥 จัดการผู้ใช้',
+    admin_add_user: '+ เพิ่ม', admin_trips: '🗺️ จัดการ Trip',
+    admin_new_trip: '+ สร้าง Trip ใหม่', export_csv: '📥 Export CSV',
+    theme_section: '🎨 ธีม', theme_label: 'โหมดมืด', theme_label_light: 'โหมดสว่าง', theme_sub: 'มืด / สว่าง',
+    lang_section: '🌐 ภาษา / Language', lang_label: 'ภาษาเมนู', lang_sub: 'Thai / English',
+    // Add user form
+    user_name: 'ชื่อ', user_name_ph: 'ชื่อผู้ใช้',
+    user_pin_label: 'PIN', user_color: 'สีประจำตัว', user_trips: 'เข้าถึง Trip',
+    user_cancel: 'ยกเลิก', user_save: 'บันทึก',
+    // Trip form
+    trip_form_new: 'สร้าง Trip ใหม่', trip_form_edit: 'แก้ไข Trip',
+    trip_default_rate: 'อัตราแลกเปลี่ยน Default', exp_rate: 'อัตราแลกเปลี่ยน',
+    sum_display_currency: 'แสดงในสกุล',
+    trip_name_label: 'ชื่อ Trip', trip_name_ph: 'เช่น ทริปญี่ปุ่น 2025',
+    trip_start: 'วันเริ่ม', trip_end: 'วันสิ้นสุด',
+    trip_currency: 'สกุลเงินหลัก', trip_budget: 'Budget',
+    trip_members: 'สมาชิก', trip_save: '💾 บันทึก',
+    // Summary
+    sum_total: '💰 ยอดรวม', sum_budget: '📋 Budget',
+    sum_count: '📌 จำนวนรายการ', sum_members: '👥 สมาชิก',
+    sum_bar: '📅 รายจ่ายรายวัน', sum_bar_all_members: '👤 ทุกคน', sum_bar_all_cats: '🏷 ทุกหมวด', sum_bar_all_accounts: '💳 ทุกบัญชี',
+    sum_bar_stack_cat: '🎨 แบ่งตามหมวด', sum_bar_stack_user: '👤 แบ่งตามคน', sum_bar_stack_acct: '💳 แบ่งตามบัญชี',
+    sum_chart: '📊 ค่าใช้จ่ายตามหมวด', sum_balance: '⚖️ ยอดคงเหลือ',
+    sum_settle: '💸 การชำระเงิน', sum_settle_done: '🎉 ทุกคนเท่ากันแล้ว',
+    sum_paid: 'จ่าย', sum_share: 'ส่วนแบ่ง',
+    // Notes sections
+    note_flight: 'เที่ยวบิน', note_hotel: 'ที่พัก',
+    note_itinerary: 'แผนเดินทาง', note_misc: 'อื่นๆ',
+    note_ph: 'เพิ่มโน้ต...',
+    // Calendar
+    cal_no_exp: 'ไม่มีรายจ่ายวันนี้',
+    // Categories
+    cat_food: '🍜 อาหาร', cat_transport: '🚗 เดินทาง', cat_hotel: '🏨 ที่พัก',
+    cat_activity: '🎡 กิจกรรม', cat_shopping: '🛍 ช้อปปิ้ง',
+    cat_health: '💊 สุขภาพ', cat_other: '📦 อื่นๆ',
+    cat_all: 'ทั้งหมด',
+    // Topbar / misc
+    no_trip_title: 'ยังไม่มี Trip', no_trip_sub: 'แตะ ≡ เพื่อเลือก Trip หรือสร้าง Trip ใหม่',
+    // Toast
+    toast_select_trip: 'กรุณาเลือก Trip ก่อน',
+    toast_fill_name_amount: 'กรุณากรอกชื่อและจำนวนเงิน',
+    toast_saved: 'บันทึกรายจ่ายแล้ว ✓', toast_updated: 'อัปเดตเรียบร้อย ✓',
+    toast_deleted: 'ลบแล้ว', toast_trip_saved: 'สร้าง Trip แล้ว ✓',
+    toast_trip_updated: 'อัปเดต Trip แล้ว ✓', toast_trip_deleted: 'ลบ Trip แล้ว',
+    toast_user_saved: 'เพิ่ม', toast_user_deleted: 'ลบแล้ว',
+    toast_user_trips_updated: 'อัปเดต Trip access แล้ว ✓',
+    toast_export: 'Export CSV แล้ว ✓',
+    toast_fill_name_pin: 'กรอกชื่อและ PIN 4 หลัก',
+    toast_fill_trip_name: 'กรอกชื่อ Trip',
+    toast_location: 'กำลังค้นหาตำแหน่ง...', toast_location_ok: 'ได้ตำแหน่งแล้ว ✓',
+    toast_location_err: 'ไม่สามารถเข้าถึง GPS',
+    toast_copied: 'คัดลอก', toast_copied_suffix: 'แล้ว ✓',
+    // Admin name
+    admin_display_name: '👑 ลิ้ม',
+    // Detail
+    detail_date: '📅 วันที่:', detail_payer: '👤 ผู้จ่าย:', detail_split: '👥 หาร:',
+    detail_location: '📍 สถานที่:', detail_note: '📝 หมายเหตุ:',
+    // Login error
+    login_error: 'PIN ไม่ถูกต้อง',
+    // GPS
+    gps_not_supported: 'ไม่รองรับ GPS',
+    // Day labels
+    day_today: '📅 วันนี้', day_yesterday: '📅 เมื่อวาน',
+    day_names: ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัส','ศุกร์','เสาร์'],
+    month_names: ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'],
+    cal_months: ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'],
+    cal_dows: ['อา','จ','อ','พ','พฤ','ศ','ส'],
+    confirm_delete_exp: 'ลบรายจ่ายนี้?',
+    confirm_delete_trip: 'ลบ Trip นี้? (ข้อมูลรายจ่ายจะหายทั้งหมด)',
+    confirm_delete_user: 'ลบผู้ใช้นี้?',
+    no_data: 'ยังไม่มีข้อมูล',
+    member_no_access: 'สร้าง User ก่อนใน Admin Panel เพื่อเพิ่มสมาชิก',
+    no_users: 'ยังไม่มีผู้ใช้', no_trips_admin: 'ยังไม่มี Trip',
+    unspecified: 'ไม่ระบุ', unspecified_date: 'ไม่ระบุวัน',
+    trips_label: 'trips', pin_label: 'PIN',
+    settle_arrow: '→',
+    budget_used: '% ใช้ไปแล้ว',
+  },
+  en: {
+    // Login
+    login_user: 'User', login_pin: 'PIN', login_btn: 'Sign In',
+    login_or: 'or', login_google: 'Sign in with Google',
+    user_email_label: 'Email (Google login)', user_email_ph: 'name@gmail.com',
+    login_sub: 'Group trip expense tracker',
+    // Nav
+    nav_expenses: 'Expenses', nav_calendar: 'Calendar', nav_summary: 'Summary', nav_notes: 'Notes',
+    // Expense sheet
+    exp_title_add: 'Add Expense', exp_title_edit: 'Edit Expense',
+    exp_name: 'Item Name', exp_name_ph: 'e.g. Dinner, Hotel...',
+    exp_amount: 'Amount', exp_currency: 'Currency',
+    exp_category: 'Category', exp_date: 'Date', exp_payer: 'Paid by',
+    exp_split: 'Split with', exp_location: '📍 Location', exp_location_ph: 'Place name...',
+    exp_note: 'Note', exp_note_ph: 'Add a note...',
+    exp_account: '💳 Payment Source', exp_account_ph: 'Cash',
+    detail_account: 'Source:',
+    exp_image: 'Photo', exp_image_ph: 'Tap to choose photo',
+    exp_save: '💾 Save', exp_delete: 'Delete', exp_edit: '✏️ Edit',
+    // Split modes
+    split_equal: '⚖️ Equal', split_ratio: '📊 Ratio %', split_amount: '💰 Custom',
+    split_ok_ratio: '✓ Total 100%', split_ok_amount: '✓ Amount matches',
+    split_err_ratio: '⚠️ Total is', split_err_amount: '⚠️ Must total',
+    split_err_no_amount: '⚠️ Enter total amount first',
+    split_save_err_ratio: 'Ratio must total 100%',
+    split_save_err_amount: 'Custom amounts must match the total',
+    // Trip selector
+    trip_select_title: 'Select Trip', trip_new_btn: '+ New Trip',
+    trip_no_trip: 'No Trips Yet', trip_no_trip_sub: 'Admin can create a new trip',
+    // Admin
+    admin_title: '⚙️ Admin Panel',
+    settings_title: '⚙️ ตั้งค่า', admin_users: '👥 Manage Users',
+    admin_add_user: '+ Add', admin_trips: '🗺️ Manage Trips',
+    admin_new_trip: '+ New Trip', export_csv: '📥 Export CSV',
+    theme_section: '🎨 Theme', theme_label: 'Dark Mode', theme_label_light: 'Light Mode', theme_sub: 'Dark / Light',
+    lang_section: '🌐 Language', lang_label: 'Menu Language', lang_sub: 'Thai / English',
+    // Add user form
+    user_name: 'Name', user_name_ph: 'Username',
+    user_pin_label: 'PIN', user_color: 'Color', user_trips: 'Trip Access',
+    user_cancel: 'Cancel', user_save: 'Save',
+    // Trip form
+    trip_form_new: 'New Trip', trip_form_edit: 'Edit Trip',
+    trip_default_rate: 'Default Exchange Rate', exp_rate: 'Exchange Rate',
+    sum_display_currency: 'Display Currency',
+    trip_name_label: 'Trip Name', trip_name_ph: 'e.g. Japan Trip 2025',
+    trip_start: 'Start Date', trip_end: 'End Date',
+    trip_currency: 'Base Currency', trip_budget: 'Budget',
+    trip_members: 'Members', trip_save: '💾 Save',
+    // Summary
+    sum_total: '💰 Total', sum_budget: '📋 Budget',
+    sum_count: '📌 Items', sum_members: '👥 Members',
+    sum_bar: '📅 Daily Expenses', sum_bar_all_members: '👤 All Members', sum_bar_all_cats: '🏷 All Categories', sum_bar_all_accounts: '💳 All Accounts',
+    sum_bar_stack_cat: '🎨 Stack by Category', sum_bar_stack_user: '👤 Stack by Member', sum_bar_stack_acct: '💳 Stack by Account',
+    sum_chart: '📊 By Category', sum_balance: '⚖️ Balance',
+    sum_settle: '💸 Settlements', sum_settle_done: '🎉 All settled up!',
+    sum_paid: 'paid', sum_share: 'share',
+    // Notes sections
+    note_flight: 'Flights', note_hotel: 'Accommodation',
+    note_itinerary: 'Itinerary', note_misc: 'Misc',
+    note_ph: 'Add a note...',
+    // Calendar
+    cal_no_exp: 'No expenses on this day',
+    // Categories
+    cat_food: '🍜 Food', cat_transport: '🚗 Transport', cat_hotel: '🏨 Hotel',
+    cat_activity: '🎡 Activity', cat_shopping: '🛍 Shopping',
+    cat_health: '💊 Health', cat_other: '📦 Other',
+    cat_all: 'All',
+    // Topbar / misc
+    no_trip_title: 'No Trip Selected', no_trip_sub: 'Tap ≡ to pick or create a trip',
+    // Toast
+    toast_select_trip: 'Please select a trip first',
+    toast_fill_name_amount: 'Please enter name and amount',
+    toast_saved: 'Expense saved ✓', toast_updated: 'Updated ✓',
+    toast_deleted: 'Deleted', toast_trip_saved: 'Trip created ✓',
+    toast_trip_updated: 'Trip updated ✓', toast_trip_deleted: 'Trip deleted',
+    toast_user_saved: 'Added', toast_user_deleted: 'Deleted',
+    toast_user_trips_updated: 'Trip access updated ✓',
+    toast_export: 'CSV exported ✓',
+    toast_fill_name_pin: 'Enter name and 4-digit PIN',
+    toast_fill_trip_name: 'Enter trip name',
+    toast_location: 'Getting location...', toast_location_ok: 'Location found ✓',
+    toast_location_err: 'Cannot access GPS',
+    toast_copied: 'Copied', toast_copied_suffix: ' ✓',
+    // Admin name
+    admin_display_name: '👑 limhengue',
+    // Detail
+    detail_date: '📅 Date:', detail_payer: '👤 Paid by:', detail_split: '👥 Split:',
+    detail_location: '📍 Location:', detail_note: '📝 Note:',
+    // Login error
+    login_error: 'Incorrect PIN',
+    // GPS
+    gps_not_supported: 'GPS not supported',
+    // Day labels
+    day_today: '📅 Today', day_yesterday: '📅 Yesterday',
+    day_names: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+    month_names: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    cal_months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+    cal_dows: ['Su','Mo','Tu','We','Th','Fr','Sa'],
+    confirm_delete_exp: 'Delete this expense?',
+    confirm_delete_trip: 'Delete this trip? (All expenses will be lost)',
+    confirm_delete_user: 'Delete this user?',
+    no_data: 'No data yet',
+    member_no_access: 'Create users in Admin Panel to add members',
+    no_users: 'No users yet', no_trips_admin: 'No trips yet',
+    unspecified: 'N/A', unspecified_date: 'Unspecified',
+    trips_label: 'trips', pin_label: 'PIN',
+    settle_arrow: '→',
+    budget_used: '% used',
+  }
+};
+
+function t(key, ...args) {
+  const dict = I18N[currentLang] || I18N.en;
+  let val = dict[key] ?? I18N.en[key] ?? key;
+  // simple {0} {1} substitution
+  args.forEach((a, i) => { val = val.replace ? val.replace(`{${i}}`, a) : val; });
+  return val;
+}
+
+function adminDisplayName() {
+  return t('admin_display_name'); // 'limhengue' (EN) or 'ลิ้ม' (TH)
+}
+
+function setLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('ts_lang', lang);
+  applyLanguage();
+}
+
+function applyLanguage() {
+  const isEN = currentLang === 'en';
+
+  // Data-driven label translation (id → i18n key)
+  [
+    ['login-sub','login_sub'],
+    ['login-btn-text','login_btn'],
+    ['login-or-text','login_or'],
+    ['login-google-text','login_google'],
+    ['exp-label-user-email','user_email_label'],
+    ['no-trip-title','no_trip_title'],
+    ['no-trip-sub','no_trip_sub'],
+    ['sum-bar-title','sum_bar'],
+    ['admin-users-title','admin_users'],
+    ['admin-add-user-btn','admin_add_user'],
+    ['admin-trips-title','admin_trips'],
+    ['admin-new-trip-btn','admin_new_trip'],
+    ['admin-export-btn','export_csv'],
+    ['admin-lang-section','lang_section'],
+    ['admin-lang-label','lang_label'],
+    ['admin-lang-sub','lang_sub'],
+    ['exp-label-name','exp_name'],
+    ['exp-label-amount','exp_amount'],
+    ['exp-label-currency','exp_currency'],
+    ['exp-label-category','exp_category'],
+    ['exp-label-date','exp_date'],
+    ['exp-label-payer','exp_payer'],
+    ['exp-label-split','exp_split'],
+    ['exp-label-location','exp_location'],
+    ['exp-label-note','exp_note'],
+    ['exp-label-account','exp_account'],
+    ['exp-label-image','exp_image'],
+    ['exp-img-ph-text','exp_image_ph'],
+    ['btn-delete-exp','exp_delete'],
+    ['btn-save-exp','exp_save'],
+    ['trip-selector-title','trip_select_title'],
+    ['btn-new-trip','trip_new_btn'],
+    ['exp-label-trip-name','trip_name_label'],
+    ['exp-label-trip-start','trip_start'],
+    ['exp-label-trip-end','trip_end'],
+    ['exp-label-trip-currency','trip_currency'],
+    ['exp-label-trip-budget','trip_budget'],
+    ['exp-label-trip-members','trip_members'],
+    ['btn-save-trip','trip_save'],
+    ['exp-label-user-name','user_name'],
+    ['exp-label-user-pin','user_pin_label'],
+    ['exp-label-user-color','user_color'],
+    ['exp-label-user-trips','user_trips'],
+    ['btn-cancel-user','user_cancel'],
+    ['btn-save-user','user_save']
+  ].forEach(([id, key]) => _setTxt(id, t(key)));
+  // Toggle badge + checkbox
+  const toggle = $('lang-toggle');
+  const badge = $('lang-badge');
+  if (toggle) toggle.checked = isEN;
+  if (badge) badge.textContent = isEN ? 'EN' : 'TH';
+
+  // Bottom nav
+  const navLabels = $$('#bottomnav .nav-label');
+  const navKeys = ['nav_expenses','nav_calendar','nav_summary','nav_notes'];
+  navLabels.forEach((el,i) => { if(navKeys[i]) el.textContent = t(navKeys[i]); });
+
+  // Summary static headers
+  _setHTML('sum-chart-header', `<div class="section-title">${t('sum_chart')}</div>`);
+  // Re-populate filter dropdowns with new language labels
+  if (currentTrip) { populateBarFilters(); renderBarChart(); }
+  _setHTML('sum-balance-header', `<div class="section-title">${t('sum_balance')}</div>`);
+  _setHTML('sum-settle-header', `<div class="section-title">${t('sum_settle')}</div>`);
+
+  // Admin modal title: depends on role
+  const _adminTitleEl = $('admin-modal-title');
+  if (_adminTitleEl) {
+    _adminTitleEl.textContent = isAdmin()
+      ? t('admin_title')
+      : t('settings_title');
+  }
+
+  // Expense sheet labels
+  _setAttr('exp-name', 'placeholder', t('exp_name_ph'));
+  _setAttr('exp-location', 'placeholder', t('exp_location_ph'));
+  _setAttr('exp-note', 'placeholder', t('exp_note_ph'));
+
+  // Split mode tabs
+  const splitTabs = $$('.split-mode-tab');
+  const splitKeys = ['split_equal','split_ratio','split_amount'];
+  splitTabs.forEach((el,i) => { if(splitKeys[i]) el.textContent = t(splitKeys[i]); });
+
+  // Trip form
+  _setAttr('trip-name-input','placeholder', t('trip_name_ph'));
+
+  // Add user form
+  _setAttr('new-user-name','placeholder', t('user_name_ph'));
+  _setAttr('new-user-email','placeholder', t('user_email_ph'));
+  _setTxt('exp-label-login-user', t('login_user'));
+  _setTxt('exp-label-login-pin', t('login_pin'));
+
+  // Re-init category chips + account suggestions with new language
+  initCategoryChips();
+  populateAccountSuggestions();
+  applyTheme(); // sync theme badge text with new language
+  // Re-apply admin sections visibility
+  const _adminSec = $('admin-only-sections');
+  if (_adminSec) _adminSec.style.display = isAdmin() ? 'block' : 'none';
+
+  // Re-render dynamic content to pick up new language
+  if (currentTrip) {
+    renderExpenses();
+    if (currentTab === 'summary') renderSummary();
+    if (currentTab === 'calendar') renderCalendar();
+    if (currentTab === 'notes') renderNotes();
+  }
+  renderAdminUserList();
+  renderAdminTripList();
+}
+
+function _setTxt(id, val) { const el=$(id); if(el) el.textContent=val; }
+function _setHTML(id, val) { const el=$(id); if(el) el.innerHTML=val; }
+function _setAttr(id, attr, val) { const el=$(id); if(el) el.setAttribute(attr,val); }
+
+// ─── Window resize: redraw bar chart ───
+window.addEventListener('resize', () => {
+  if (currentTrip && currentTab === 'summary') renderBarChart();
+});
+
+// ─── Keyboard avoidance ───
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', () => {
+    const offset = window.innerHeight - window.visualViewport.height;
+    const sheets = $$('.sheet.show');
+    sheets.forEach(s => s.style.paddingBottom = `${Math.max(offset, 20) + parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom')||'0')}px`);
+  });
+}
+
+// ─── Enter key for login ───
+document.addEventListener('DOMContentLoaded', () => {
+  $('login-pin').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+});
+
+// ─── Boot ───
+(async function boot() {
+  initCal();
+  applyTheme();
+  applyLanguage();
+
+  // Wait for Firebase SDK init (synchronous scripts already loaded,
+  // __bootReady resolves immediately after __initFirebase())
+  await __bootReady;
+
+  // Anonymous auth — runs fast (cached token after first visit)
+  await ensureAnonymousAuth();
+
+  // Load users from Firebase (needed to validate PIN sessions + populate login)
+  try {
+    const snap = await Promise.race([
+      db.ref('users').once('value'),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('users load timeout')), 8000))
+    ]);
+    allUsers = snap.val() || {};
+    loadLoginUserList();
+  } catch(e) {
+    console.warn('Firebase users load error:', e.message);
+    // Show login anyway — user can still try Google login or wait
+    loadLoginUserList();
+  }
+
+  // Restore + verify session
+  tryRestoreSession();
+  if (currentUser) {
+    if (currentUser.isAdmin) {
+      const viaGoogle = (currentUser.email || '').toLowerCase() === ADMIN_EMAIL.toLowerCase();
+      const viaPin   = !currentUser.email;
+      if (!viaGoogle && !viaPin) {
+        localStorage.removeItem('ts_session'); currentUser = null;
+      }
+    } else {
+      const u = allUsers[currentUser.id];
+      if (!u || u.pin !== currentUser.pin) {
+        localStorage.removeItem('ts_session'); currentUser = null;
+      }
+    }
+  }
+
+  // Show UI
+  if (currentUser) {
+    startMain();
+    if (!FIREBASE_OK) showToast('⚠️ Offline mode — add real API key to sync', 'error');
+  } else {
+    $('screen-login').style.display = 'flex';
+    if (!FIREBASE_OK) {
+      const b = document.createElement('div');
+      b.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#f59e0b;color:#000;text-align:center;padding:8px 12px;font-size:12px;font-weight:600;z-index:9999;';
+      b.textContent = '⚠️ Firebase not connected — running Offline (add real API key to FIREBASE_CONFIG)';
+      document.body.insertBefore(b, document.body.firstChild);
+    }
+  }
+
+  // Hide splash
+  const splash = $('splash');
+  if (splash) { splash.style.opacity = '0'; setTimeout(() => splash.style.display = 'none', 300); }
+})();
+</script>
+</body>
+</html>
